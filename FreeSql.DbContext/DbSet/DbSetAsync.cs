@@ -145,6 +145,20 @@ namespace FreeSql {
 			//等待下次对比再保存
 			return 0;
 		}
+		public Task UpdateAsync(TEntity data) => UpdateRangePrivAsync(new[] { data }, true);
+		public Task UpdateRangeAsync(IEnumerable<TEntity> data) => UpdateRangePrivAsync(data, true);
+		async Task UpdateRangePrivAsync(IEnumerable<TEntity> data, bool isCheck) {
+			if (CanUpdate(data, true) == false) return;
+			foreach (var item in data) {
+				if (_dicUpdateTimes.ContainsKey(item))
+					await DbContextExecCommandAsync();
+				_dicUpdateTimes.Add(item, 1);
+
+				var state = CreateEntityState(item);
+				state.OldValue = item;
+				EnqueueToDbContext(DbContext.ExecCommandInfoType.Update, state);
+			}
+		}
 		#endregion
 
 		#region RemoveAsync
@@ -155,11 +169,11 @@ namespace FreeSql {
 		}
 		#endregion
 
-		#region AddOrUpdate
+		#region AddOrUpdateAsync
 		async public Task AddOrUpdateAsync(TEntity data) {
 			var affrows = _ctx._affrows;
 			if (CanUpdate(data, false)) {
-				UpdateRangePriv(new[] { data }, false);
+				await UpdateRangePrivAsync(new[] { data }, false);
 				await DbContextExecCommandAsync();
 				affrows = _ctx._affrows - affrows;
 			}

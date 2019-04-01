@@ -4,6 +4,11 @@
 
 ## 更新日志
 
+### v0.4.2
+
+- 增加 DbSet UpdateAsync/UpdateRangeAsync 方法，当一个实体被更新两次时，会先执行前面的队列；
+- 增加 GetRepository 获取联合主键的适用仓储类；
+
 ### v0.4.1
 - 独立 FreeSql.DbContext 项目；
 - 实现 Repository + DbSet 统一的状态跟踪与工作单元；

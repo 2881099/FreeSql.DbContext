@@ -45,6 +45,7 @@ namespace dbcontext_01
 				.UseMonitorCommand(cmd => Trace.WriteLine(cmd.CommandText))
 				.Build();
 
+
 			using (var ctx = new SongContext()) {
 				var song = new Song { BigNumber = "1000000000000000000" };
 				ctx.Songs.Add(song);
@@ -55,6 +56,8 @@ namespace dbcontext_01
 				ctx.Songs.Update(song);
 
 				ctx.SaveChanges();
+
+				var sql = fsql.Update<Song>().SetSource(song).ToSql();
 			}
 
 			CreateWebHostBuilder(args).Build().Run();

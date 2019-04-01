@@ -40,6 +40,7 @@ namespace FreeSql {
 		public void Dispose() {
 			if (_isdisposed) return;
 			try {
+				_db.DbSet.Dispose();
 				_db.Dispose();
 				this.DataFilter.Dispose();
 			} finally {

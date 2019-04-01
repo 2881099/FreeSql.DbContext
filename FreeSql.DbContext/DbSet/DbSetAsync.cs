@@ -1,5 +1,6 @@
 ﻿using FreeSql.Extensions.EntityUtil;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -33,6 +34,7 @@ namespace FreeSql {
 							_fsql.SetEntityIdentityValueWithPrimary(data, idtval);
 							var state = CreateEntityState(data);
 							_states.Add(state.Key, state);
+							await AddOrUpdateNavigateListAsync(data);
 						} else {
 							await DbContextExecCommandAsync();
 							var newval = (await this.OrmInsert(data).ExecuteInsertedAsync()).First();
@@ -40,6 +42,7 @@ namespace FreeSql {
 							_fsql.MapEntityValue(newval, data);
 							var state = CreateEntityState(newval);
 							_states.Add(state.Key, state);
+							await AddOrUpdateNavigateListAsync(data);
 						}
 						return;
 					case DataType.MySql:
@@ -52,11 +55,13 @@ namespace FreeSql {
 							_fsql.SetEntityIdentityValueWithPrimary(data, idtval);
 							var state = CreateEntityState(data);
 							_states.Add(state.Key, state);
+							await AddOrUpdateNavigateListAsync(data);
 						}
 						return;
 				}
 			} else {
 				EnqueueToDbContext(DbContext.ExecCommandInfoType.Insert, CreateEntityState(data));
+				await AddOrUpdateNavigateListAsync(data);
 			}
 		}
 		public Task AddAsync(TEntity data) => AddPrivAsync(data, true);
@@ -79,6 +84,8 @@ namespace FreeSql {
 							_fsql.MapEntityValue(rets[idx++], s);
 						IncrAffrows(rets.Count);
 						TrackToList(rets);
+						foreach (var item in data)
+							await AddOrUpdateNavigateListAsync(item);
 						return;
 					case DataType.MySql:
 					case DataType.Oracle:
@@ -91,6 +98,40 @@ namespace FreeSql {
 				//进入队列，等待 SaveChanges 时执行
 				foreach (var item in data)
 					EnqueueToDbContext(DbContext.ExecCommandInfoType.Insert, CreateEntityState(item));
+				foreach (var item in data)
+					await AddOrUpdateNavigateListAsync(item);
+			}
+		}
+		async Task AddOrUpdateNavigateListAsync(TEntity item) {
+			foreach (var prop in _table.Properties) {
+				if (_table.ColumnsByCs.ContainsKey(prop.Key)) continue;
+				var tref = _table.GetTableRef(prop.Key, true);
+				if (tref == null) continue;
+
+				switch (tref.RefType) {
+					case Internal.Model.TableRefType.OneToOne:
+					case Internal.Model.TableRefType.ManyToOne:
+						continue;
+					case Internal.Model.TableRefType.OneToMany:
+						var propVal = prop.Value.GetValue(item);
+						var propValEach = propVal as IEnumerable;
+						if (propValEach == null) continue;
+						object dbset = null;
+						System.Reflection.MethodInfo dbsetAddOrUpdate = null;
+						foreach (var propValItem in propValEach) {
+							if (dbset == null) {
+								dbset = _ctx.Set(tref.RefEntityType);
+								dbsetAddOrUpdate = dbset.GetType().GetMethod("AddOrUpdateAsync", new Type[] { tref.RefEntityType });
+							}
+							for (var colidx = 0; colidx < tref.Columns.Count; colidx++) {
+								tref.RefColumns[colidx].Table.Properties[tref.RefColumns[colidx].CsName]
+									.SetValue(propValItem, tref.Columns[colidx].Table.Properties[tref.Columns[colidx].CsName].GetValue(item));
+							}
+							Task task = dbsetAddOrUpdate.Invoke(dbset, new object[] { propValItem }) as Task;
+							await task;
+						}
+						break;
+				}
 			}
 		}
 		#endregion
@@ -158,6 +199,8 @@ namespace FreeSql {
 				state.OldValue = item;
 				EnqueueToDbContext(DbContext.ExecCommandInfoType.Update, state);
 			}
+			foreach (var item in data)
+				await AddOrUpdateNavigateListAsync(item);
 		}
 		#endregion
 
@@ -171,13 +214,13 @@ namespace FreeSql {
 
 		#region AddOrUpdateAsync
 		async public Task AddOrUpdateAsync(TEntity data) {
-			var affrows = _ctx._affrows;
 			if (CanUpdate(data, false)) {
+				var affrows = _ctx._affrows;
 				await UpdateRangePrivAsync(new[] { data }, false);
 				await DbContextExecCommandAsync();
 				affrows = _ctx._affrows - affrows;
+				if (affrows == 1) return;
 			}
-			if (affrows == 1) return;
 			if (CanAdd(data, false)) {
 				_fsql.ClearEntityPrimaryValueWithIdentity(data);
 				await AddPrivAsync(data, false);

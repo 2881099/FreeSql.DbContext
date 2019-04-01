@@ -63,7 +63,38 @@ namespace dbcontext_01.Controllers
 
 
 				using (var ctx = new SongContext()) {
-					
+
+					var tag = new Tag {
+						Name = "testaddsublist",
+						Tags = new[] {
+							new Tag { Name = "sub1" },
+							new Tag { Name = "sub2" },
+							new Tag {
+								Name = "sub3",
+								Tags = new[] {
+									new Tag { Name = "sub3_01" }
+								}
+							}
+						}
+					};
+					ctx.Tags.Add(tag);
+
+					var tagAsync = new Tag {
+						Name = "testaddsublist",
+						Tags = new[] {
+							new Tag { Name = "sub1" },
+							new Tag { Name = "sub2" },
+							new Tag {
+								Name = "sub3",
+								Tags = new[] {
+									new Tag { Name = "sub3_01" }
+								}
+							}
+						}
+					};
+					await ctx.Tags.AddAsync(tagAsync);
+
+
 					ctx.Songs.Select.Where(a => a.Id > 10).ToList();
 					//查询结果，进入 states
 

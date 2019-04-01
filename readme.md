@@ -8,6 +8,7 @@
 
 - 增加 DbSet UpdateAsync/UpdateRangeAsync 方法，当一个实体被更新两次时，会先执行前面的队列；
 - 增加 GetRepository 获取联合主键的适用仓储类；
+- 增加 DbSet 在 Add/Update 时对导航属性(OneToMany) 的处理（AddOrUpdate）；
 
 ### v0.4.1
 - 独立 FreeSql.DbContext 项目；

@@ -1,5 +1,6 @@
 ﻿using FreeSql.Extensions.EntityUtil;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -32,6 +33,7 @@ namespace FreeSql {
 							_fsql.SetEntityIdentityValueWithPrimary(data, idtval);
 							var state = CreateEntityState(data);
 							_states.Add(state.Key, state);
+							AddOrUpdateNavigateList(data);
 						} else {
 							DbContextExecCommand();
 							var newval = this.OrmInsert(data).ExecuteInserted().First();
@@ -39,6 +41,7 @@ namespace FreeSql {
 							_fsql.MapEntityValue(newval, data);
 							var state = CreateEntityState(newval);
 							_states.Add(state.Key, state);
+							AddOrUpdateNavigateList(data);
 						}
 						return;
 					case DataType.MySql:
@@ -51,11 +54,14 @@ namespace FreeSql {
 							_fsql.SetEntityIdentityValueWithPrimary(data, idtval);
 							var state = CreateEntityState(data);
 							_states.Add(state.Key, state);
+							AddOrUpdateNavigateList(data);
 						}
 						return;
 				}
-			} else
+			} else {
 				EnqueueToDbContext(DbContext.ExecCommandInfoType.Insert, CreateEntityState(data));
+				AddOrUpdateNavigateList(data);
+			}
 		}
 		public void Add(TEntity data) => AddPriv(data, true);
 		public void AddRange(IEnumerable<TEntity> data) {
@@ -77,6 +83,8 @@ namespace FreeSql {
 							_fsql.MapEntityValue(rets[idx++], s);
 						IncrAffrows(rets.Count);
 						TrackToList(rets);
+						foreach (var item in data)
+							AddOrUpdateNavigateList(item);
 						return;
 					case DataType.MySql:
 					case DataType.Oracle:
@@ -89,6 +97,39 @@ namespace FreeSql {
 				//进入队列，等待 SaveChanges 时执行
 				foreach (var item in data)
 					EnqueueToDbContext(DbContext.ExecCommandInfoType.Insert, CreateEntityState(item));
+				foreach (var item in data)
+					AddOrUpdateNavigateList(item);
+			}
+		}
+		void AddOrUpdateNavigateList(TEntity item) {
+			foreach(var prop in _table.Properties) {
+				if (_table.ColumnsByCs.ContainsKey(prop.Key)) continue;
+				var tref = _table.GetTableRef(prop.Key, true);
+				if (tref == null) continue;
+
+				switch(tref.RefType) {
+					case Internal.Model.TableRefType.OneToOne:
+					case Internal.Model.TableRefType.ManyToOne:
+						continue;
+					case Internal.Model.TableRefType.OneToMany:
+						var propVal = prop.Value.GetValue(item);
+						var propValEach = propVal as IEnumerable;
+						if (propValEach == null) continue;
+						object dbset = null;
+						System.Reflection.MethodInfo dbsetAddOrUpdate = null;
+						foreach (var propValItem in propValEach) {
+							if (dbset == null) {
+								dbset = _ctx.Set(tref.RefEntityType);
+								dbsetAddOrUpdate = dbset.GetType().GetMethod("AddOrUpdate", new Type[] { tref.RefEntityType });
+							}
+							for (var colidx = 0; colidx < tref.Columns.Count; colidx++) {
+								tref.RefColumns[colidx].Table.Properties[tref.RefColumns[colidx].CsName]
+									.SetValue(propValItem, tref.Columns[colidx].Table.Properties[tref.Columns[colidx].CsName].GetValue(item));
+							}
+							dbsetAddOrUpdate.Invoke(dbset, new object[] { propValItem });
+						}
+						break;
+				}
 			}
 		}
 		#endregion
@@ -158,6 +199,8 @@ namespace FreeSql {
 				state.OldValue = item;
 				EnqueueToDbContext(DbContext.ExecCommandInfoType.Update, state);
 			}
+			foreach (var item in data)
+				AddOrUpdateNavigateList(item);
 		}
 		#endregion
 
@@ -183,13 +226,13 @@ namespace FreeSql {
 
 		#region AddOrUpdate
 		public void AddOrUpdate(TEntity data) {
-			var affrows = _ctx._affrows;
 			if (CanUpdate(data, false)) {
+				var affrows = _ctx._affrows;
 				UpdateRangePriv(new[] { data }, false);
 				DbContextExecCommand();
 				affrows = _ctx._affrows - affrows;
+				if (affrows == 1) return;
 			}
-			if (affrows == 1) return;
 			if (CanAdd(data, false)) {
 				_fsql.ClearEntityPrimaryValueWithIdentity(data);
 				AddPriv(data, false);

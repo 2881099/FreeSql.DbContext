@@ -21,7 +21,10 @@ namespace FreeSql {
 
 		static Dictionary<Type, Dictionary<string, Func<object, object[], Task<int>>>> _dicExecCommandDbContextBetchAsync = new Dictionary<Type, Dictionary<string, Func<object, object[], Task<int>>>>();
 		async internal Task ExecCommandAsync() {
+			if (isExecCommanding) return;
 			if (_actions.Any() == false) return;
+			isExecCommanding = true;
+
 			ExecCommandInfo oldinfo = null;
 			var states = new List<object>();
 
@@ -113,6 +116,7 @@ namespace FreeSql {
 					oldinfo = info;
 				}
 			}
+			isExecCommanding = false;
 		}
 	}
 }

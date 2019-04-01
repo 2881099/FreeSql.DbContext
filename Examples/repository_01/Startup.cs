@@ -74,21 +74,6 @@ namespace repository_01 {
 				,
 				this.GetType().Assembly
 			);
-
-
-			//var builder = new ContainerBuilder();
-
-			//builder.RegisterFreeRepository(filter => filter
-			//	//.Apply<Song>("test", a => a.Title == DateTime.Now.ToString() + System.Threading.Thread.CurrentThread.ManagedThreadId)
-			//	.Apply<ISoftDelete>("softdelete", a => a.IsDeleted == false)
-			//	,
-			//	this.GetType().Assembly
-			//);
-
-			//builder.Populate(services);
-			//var container = builder.Build();
-
-			//return new AutofacServiceProvider(container);
 		}
 
 		public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory) {

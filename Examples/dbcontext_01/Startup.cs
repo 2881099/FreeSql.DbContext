@@ -22,7 +22,10 @@ namespace dbcontext_01
 			Fsql = new FreeSql.FreeSqlBuilder()
 				.UseConnectionString(FreeSql.DataType.Sqlite, @"Data Source=|DataDirectory|\document.db;Pooling=true;Max Pool Size=10")
 				//.UseConnectionString(FreeSql.DataType.SqlServer, "Data Source=.;Integrated Security=True;Initial Catalog=freesqlTest;Pooling=true;Max Pool Size=10")
-				.UseLogger(loggerFactory.CreateLogger<IFreeSql>())
+
+				//.UseConnectionString(FreeSql.DataType.Oracle, "user id=user1;password=123456;data source=//127.0.0.1:1521/XE;Pooling=true;Max Pool Size=10")
+				//.UseSyncStructureToUpper(true)
+
 				.UseAutoSyncStructure(true)
 				.UseLazyLoading(true)
 				.UseNoneCommandParameter(true)

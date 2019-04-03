@@ -95,6 +95,18 @@ namespace FreeSql {
 			public string Key { get; set; }
 			public DateTime Time { get; set; }
 		}
+		/// <summary>
+		/// 附加实体，可用于不查询就更新或删除
+		/// </summary>
+		/// <param name="data"></param>
+		public void Attach(TEntity data) {
+			if (_table.Primarys.Any() == false) throw new Exception($"不可附加，实体没有主键：{_fsql.GetEntityString(data)}");
+			var key = _fsql.GetEntityKeyString(data);
+			if (string.IsNullOrEmpty(key)) throw new Exception($"不可附加，未设置主键的值：{_fsql.GetEntityString(data)}");
+
+			var state = CreateEntityState(data);
+			_states.Add(state.Key, state);
+		}
 
 		#region Utils
 		EntityState CreateEntityState(TEntity data) {

@@ -4,6 +4,10 @@
 
 ## 更新日志
 
+### v0.4.5
+
+- 增加  DbSet Attach 方法附加实体，可用于不查询就更新或删除；
+
 ### v0.4.2
 
 - 增加 DbSet UpdateAsync/UpdateRangeAsync 方法，当一个实体被更新两次时，会先执行前面的队列；

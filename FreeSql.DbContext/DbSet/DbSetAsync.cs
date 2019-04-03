@@ -215,11 +215,12 @@ namespace FreeSql {
 		#region AddOrUpdateAsync
 		async public Task AddOrUpdateAsync(TEntity data) {
 			if (CanUpdate(data, false)) {
+				await DbContextExecCommandAsync();
 				var affrows = _ctx._affrows;
 				await UpdateRangePrivAsync(new[] { data }, false);
 				await DbContextExecCommandAsync();
 				affrows = _ctx._affrows - affrows;
-				if (affrows == 1) return;
+				if (affrows > 0) return;
 			}
 			if (CanAdd(data, false)) {
 				_fsql.ClearEntityPrimaryValueWithIdentity(data);

@@ -71,6 +71,11 @@ namespace dbcontext_01
 			services.AddSingleton<IFreeSql>(Fsql);
 			services.AddSingleton<IFreeSql<long>>(Fsql2);
 			services.AddFreeDbContext<SongContext>(options => options.UseFreeSql(Fsql));
+
+
+			var sql1 = Fsql.Update<Song>(1).Set(a => a.Id + 10).ToSql();
+			var sql2 = Fsql.Update<Song>(1).Set(a => a.Title + 10).ToSql();
+			var sql3 = Fsql.Update<Song>(1).Set(a => a.Create_time.Value.AddHours(1)).ToSql();
 		}
 
 		public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory) {

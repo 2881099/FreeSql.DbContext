@@ -63,6 +63,10 @@ namespace FreeSql {
 				AddOrUpdateNavigateList(data);
 			}
 		}
+		/// <summary>
+		/// 添加
+		/// </summary>
+		/// <param name="data"></param>
 		public void Add(TEntity data) => AddPriv(data, true);
 		public void AddRange(IEnumerable<TEntity> data) {
 			if (CanAdd(data, true) == false) return;
@@ -186,6 +190,10 @@ namespace FreeSql {
 		}
 
 		Dictionary<TEntity, byte> _dicUpdateTimes = new Dictionary<TEntity, byte>();
+		/// <summary>
+		/// 更新
+		/// </summary>
+		/// <param name="data"></param>
 		public void Update(TEntity data) => UpdateRangePriv(new[] { data }, true);
 		public void UpdateRange(IEnumerable<TEntity> data) => UpdateRangePriv(data, true);
 		void UpdateRangePriv(IEnumerable<TEntity> data, bool isCheck) {
@@ -211,6 +219,10 @@ namespace FreeSql {
 			return Math.Max(dels.Length, affrows);
 		}
 
+		/// <summary>
+		/// 删除
+		/// </summary>
+		/// <param name="data"></param>
 		public void Remove(TEntity data) => RemoveRange(new[] { data });
 		public void RemoveRange(IEnumerable<TEntity> data) {
 			if (CanRemove(data, true) == false) return;
@@ -225,13 +237,18 @@ namespace FreeSql {
 		#endregion
 
 		#region AddOrUpdate
+		/// <summary>
+		/// 添加或更新
+		/// </summary>
+		/// <param name="data"></param>
 		public void AddOrUpdate(TEntity data) {
 			if (CanUpdate(data, false)) {
+				DbContextExecCommand();
 				var affrows = _ctx._affrows;
 				UpdateRangePriv(new[] { data }, false);
 				DbContextExecCommand();
 				affrows = _ctx._affrows - affrows;
-				if (affrows == 1) return;
+				if (affrows > 0) return;
 			}
 			if (CanAdd(data, false)) {
 				_fsql.ClearEntityPrimaryValueWithIdentity(data);

@@ -10,7 +10,8 @@ namespace FreeSql {
 	public abstract class BaseRepository<TEntity> : IRepository<TEntity>
 		where TEntity : class {
 
-		internal IFreeSql _fsql;
+		protected IFreeSql _fsql => _fsqlInternal;
+		internal IFreeSql _fsqlInternal;
 		internal RepositoryDbContext<TEntity> _db;
 		public IDataFilter<TEntity> DataFilter { get; } = new DataFilter<TEntity>();
 		Func<string, string> _asTableVal;
@@ -26,11 +27,11 @@ namespace FreeSql {
 		internal Func<Type, string, string> AsTableSelectInternal => AsTableSelect;
 
 		protected BaseRepository(IFreeSql fsql, Expression<Func<TEntity, bool>> filter, Func<string, string> asTable = null) {
-			_fsql = fsql;
+			_fsqlInternal = fsql;
 			DataFilterUtil.SetRepositoryDataFilter(this, null);
 			DataFilter.Apply("", filter);
 			AsTable = asTable;
-			_db = new RepositoryDbContext<TEntity>(_fsql, this);
+			_db = new RepositoryDbContext<TEntity>(_fsqlInternal, this);
 		}
 
 		~BaseRepository() {

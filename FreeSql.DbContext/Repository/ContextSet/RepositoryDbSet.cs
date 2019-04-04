@@ -10,7 +10,7 @@ namespace FreeSql {
 		protected BaseRepository<TEntity> _repos;
 		public RepositoryDbSet(BaseRepository<TEntity> repos) {
 			_ctx = repos._db;
-			_fsql = repos._fsql;
+			_fsql = repos._fsqlInternal;
 			_uow = repos.UnitOfWork;
 			_repos = repos;
 		}

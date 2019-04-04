@@ -1,9 +1,12 @@
 ﻿using FreeSql.Extensions.EntityUtil;
 using FreeSql.Internal.Model;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace FreeSql {
 
@@ -55,6 +58,31 @@ namespace FreeSql {
 		internal void IncrAffrows(int affrows) {
 			_ctx._affrows += affrows;
 		}
+
+		internal static ConcurrentDictionary<Type, MethodInfo> dicMethodTractToListInternal = new ConcurrentDictionary<Type, MethodInfo>();
+		internal void TractToListInternal(IEnumerable<TEntity> list) {
+			foreach (var item in list) {
+				var key = _fsql.GetEntityKeyString(item);
+				if (_states.ContainsKey(key)) {
+					_fsql.MapEntityValue(item, _states[key].Value);
+					_states[key].Time = DateTime.Now;
+				} else {
+					_states.Add(key, CreateEntityState(item));
+				}
+			}
+		}
+		//internal void TrackToList(object list) {
+		//	if (list == null) return;
+		//	var listType = list.GetType();
+		//	if (listType.IsGenericType == false) return;
+		//	var listGenericType = listType.GenericTypeArguments[0];
+		//	if (typeof(IEnumerable<>).MakeGenericType(listGenericType).IsAssignableFrom(listType)) return;
+
+		//	var dbset = _ctx.Set(listGenericType);
+		//	var dbsetStates = dicMethodTractToListInternal.GetOrAdd(_entityType, 
+		//		et => typeof(DbSet<>).MakeGenericType(et).GetMethod("TractToListInternal"))
+		//		.Invoke(dbset, new object[] { list });
+		//}
 		internal void TrackToList(object list) {
 			if (list == null) return;
 			var ls = list as IList<TEntity>;
@@ -99,13 +127,20 @@ namespace FreeSql {
 		/// 附加实体，可用于不查询就更新或删除
 		/// </summary>
 		/// <param name="data"></param>
-		public void Attach(TEntity data) {
+		public void Attach(TEntity data) => AttachRange(new[] { data });
+		public void AttachRange(IEnumerable<TEntity> data) {
 			if (_table.Primarys.Any() == false) throw new Exception($"不可附加，实体没有主键：{_fsql.GetEntityString(data)}");
-			var key = _fsql.GetEntityKeyString(data);
-			if (string.IsNullOrEmpty(key)) throw new Exception($"不可附加，未设置主键的值：{_fsql.GetEntityString(data)}");
+			foreach (var item in data) {
+				var key = _fsql.GetEntityKeyString(data);
+				if (string.IsNullOrEmpty(key)) throw new Exception($"不可附加，未设置主键的值：{_fsql.GetEntityString(data)}");
 
-			var state = CreateEntityState(data);
-			_states.Add(state.Key, state);
+				if (_states.ContainsKey(key)) {
+					_fsql.MapEntityValue(item, _states[key].Value);
+					_states[key].Time = DateTime.Now;
+				} else {
+					_states.Add(key, CreateEntityState(item));
+				}
+			}
 		}
 
 		#region Utils
@@ -128,6 +163,7 @@ namespace FreeSql {
 				if (isThrow) throw new ArgumentNullException(nameof(data));
 				return false;
 			}
+			if (data.Any() == false) return false;
 			foreach (var s in data) if (CanAdd(s, isThrow) == false) return false;
 			return true;
 		}
@@ -170,6 +206,7 @@ namespace FreeSql {
 				if (isThrow) throw new ArgumentNullException(nameof(data));
 				return false;
 			}
+			if (data.Any() == false) return false;
 			foreach (var s in data) if (CanUpdate(s, isThrow) == false) return false;
 			return true;
 		}
@@ -199,6 +236,7 @@ namespace FreeSql {
 				if (isThrow) throw new ArgumentNullException(nameof(data));
 				return false;
 			}
+			if (data.Any() == false) return false;
 			foreach (var s in data) if (CanRemove(s, isThrow) == false) return false;
 			return true;
 		}

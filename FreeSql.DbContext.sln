@@ -20,6 +20,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FreeSql", "..\FreeSql\FreeS
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "orm_vs", "Examples\orm_vs\orm_vs.csproj", "{0E11197B-63F7-4C16-AA36-7214B177172B}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FreeSql.DbContext.Tests", "FreeSql.DbContext.Tests\FreeSql.DbContext.Tests.csproj", "{A2FE3944-61D3-4516-AC0E-DA9181D87ED2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -46,6 +48,10 @@ Global
 		{0E11197B-63F7-4C16-AA36-7214B177172B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0E11197B-63F7-4C16-AA36-7214B177172B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0E11197B-63F7-4C16-AA36-7214B177172B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A2FE3944-61D3-4516-AC0E-DA9181D87ED2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A2FE3944-61D3-4516-AC0E-DA9181D87ED2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A2FE3944-61D3-4516-AC0E-DA9181D87ED2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A2FE3944-61D3-4516-AC0E-DA9181D87ED2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

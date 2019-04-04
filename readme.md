@@ -4,9 +4,16 @@
 
 ## 更新日志
 
+### v0.4.6
+
+- 修复 DbSet AddRange/UpdateRange/RemoveRange 参数为空列表时报错，现在不用判断 data.Any() == true 再执行；
+- 增加 DbContext 对 DbSet 的快速代理方法(Add/Update/Remove/Attach)；
+- 调整 DbSet Update/UpdateRange 不再联级保存；
+- 增加 DbContext 通用类，命名为：FreeContext；
+
 ### v0.4.5
 
-- 增加  DbSet Attach 方法附加实体，可用于不查询就更新或删除；
+- 增加 DbSet Attach 方法附加实体，可用于不查询就更新或删除；
 
 ### v0.4.2
 

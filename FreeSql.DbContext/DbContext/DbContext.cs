@@ -6,6 +6,7 @@ using System.Data.Common;
 using System.Linq;
 using System.Reflection;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 
 namespace FreeSql {
 	public abstract partial class DbContext : IDisposable {
@@ -41,7 +42,6 @@ namespace FreeSql {
 			
 		}
 
-
 		protected Dictionary<Type, object> _dicSet = new Dictionary<Type, object>();
 		public DbSet<TEntity> Set<TEntity>() where TEntity : class => this.Set(typeof(TEntity)) as DbSet<TEntity>;
 		public virtual object Set(Type entityType) {
@@ -51,6 +51,52 @@ namespace FreeSql {
 			return sd;
 		}
 		protected Dictionary<string, object> AllSets { get; } = new Dictionary<string, object>();
+
+		#region DbSet 快速代理
+		/// <summary>
+		/// 添加
+		/// </summary>
+		/// <typeparam name="TEntity"></typeparam>
+		/// <param name="data"></param>
+		public void Add<TEntity>(TEntity data) where TEntity : class => this.Set<TEntity>().Add(data);
+		public void AddRange<TEntity>(IEnumerable<TEntity> data) where TEntity : class => this.Set<TEntity>().AddRange(data);
+		public Task AddAsync<TEntity>(TEntity data) where TEntity : class => this.Set<TEntity>().AddAsync(data);
+		public Task AddRangeAsync<TEntity>(IEnumerable<TEntity> data) where TEntity : class => this.Set<TEntity>().AddRangeAsync(data);
+
+		/// <summary>
+		/// 更新
+		/// </summary>
+		/// <typeparam name="TEntity"></typeparam>
+		/// <param name="data"></param>
+		public void Update<TEntity>(TEntity data) where TEntity : class => this.Set<TEntity>().Update(data);
+		public void UpdateRange<TEntity>(IEnumerable<TEntity> data) where TEntity : class => this.Set<TEntity>().UpdateRange(data);
+		public Task UpdateAsync<TEntity>(TEntity data) where TEntity : class => this.Set<TEntity>().UpdateAsync(data);
+		public Task UpdateRangeAsync<TEntity>(IEnumerable<TEntity> data) where TEntity : class => this.Set<TEntity>().UpdateRangeAsync(data);
+
+		/// <summary>
+		/// 删除
+		/// </summary>
+		/// <typeparam name="TEntity"></typeparam>
+		/// <param name="data"></param>
+		public void Remove<TEntity>(TEntity data) where TEntity : class => this.Set<TEntity>().Remove(data);
+		public void RemoveRange<TEntity>(IEnumerable<TEntity> data) where TEntity : class => this.Set<TEntity>().RemoveRange(data);
+
+		/// <summary>
+		/// 添加或更新
+		/// </summary>
+		/// <typeparam name="TEntity"></typeparam>
+		/// <param name="data"></param>
+		public void AddOrUpdate<TEntity>(TEntity data) where TEntity : class => this.Set<TEntity>().AddOrUpdate(data);
+		public Task AddOrUpdateAsync<TEntity>(TEntity data) where TEntity : class => this.Set<TEntity>().AddOrUpdateAsync(data);
+
+		/// <summary>
+		/// 附加实体，可用于不查询就更新或删除
+		/// </summary>
+		/// <typeparam name="TEntity"></typeparam>
+		/// <param name="data"></param>
+		public void Attach<TEntity>(TEntity data) where TEntity : class => this.Set<TEntity>().Attach(data);
+		public void AttachRange<TEntity>(IEnumerable<TEntity> data) where TEntity : class => this.Set<TEntity>().AttachRange(data);
+		#endregion
 
 		internal class ExecCommandInfo {
 			public ExecCommandInfoType actionType { get; set; }

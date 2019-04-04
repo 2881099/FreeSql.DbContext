@@ -44,7 +44,7 @@ namespace FreeSql {
 						new[] { var1Vals },
 						Expression.Assign(var1Vals, Expression.Convert(FreeSql.Internal.Utils.GetDataReaderValueBlockExpression(arrType, parm2Vals), arrType)),
 						Expression.Return(returnTarget, Expression.Call(Expression.Convert(parm1DbSet, dbsetType), dbsetTypeMethod, var1Vals)),
-						Expression.Label(returnTarget, Expression.Default(typeof(int)))
+						Expression.Label(returnTarget, Expression.Default(typeof(Task<int>)))
 					), new[] { parm1DbSet, parm2Vals }).Compile();
 					trydic.Add(methodName, tryfunc);
 				}

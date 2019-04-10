@@ -67,7 +67,7 @@ public class g {
 	public static IFreeSql oracle = oracleLazy.Value;
 
 	static Lazy<IFreeSql> sqliteLazy = new Lazy<IFreeSql>(() => new FreeSql.FreeSqlBuilder()
-		.UseConnectionString(FreeSql.DataType.Sqlite, @"Data Source=|DataDirectory|\document.db;Attachs=xxxtb.db;Pooling=true;Max Pool Size=10")
+		.UseConnectionString(FreeSql.DataType.Sqlite, @"Data Source=|DataDirectory|/document.db;Attachs=xxxtb.db;Pooling=true;Max Pool Size=10")
 		.UseAutoSyncStructure(true)
 		.UseLazyLoading(true)
 		.UseMonitorCommand(

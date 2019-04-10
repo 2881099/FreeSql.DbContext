@@ -7,7 +7,7 @@
 ### v0.4.10
 
 - 补充 开放 DbContext.Orm 对象；
-修改 OnConfiguring 未配置时注入获取失败的 bug；
+- 修复 OnConfiguring 未配置时注入获取失败的 bug；
 
 ### v0.4.6
 

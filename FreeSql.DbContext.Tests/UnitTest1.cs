@@ -11,8 +11,20 @@ using Npgsql.LegacyPostgis;
 namespace FreeSql.Tests {
 	public class UnitTest1 {
 
+		class testenumWhere {
+			public Guid id { get; set; }
+			public testenumWhereType type { get; set; }
+		}
+		public enum testenumWhereType { Menu, Class, Blaaa }
+
 		[Fact]
 		public void Add() {
+
+			g.mysql.Insert<testenumWhere>().AppendData(new testenumWhere { type = testenumWhereType.Blaaa }).ExecuteAffrows();
+
+			var sql = g.mysql.Select<testenumWhere>().Where(a => a.type == testenumWhereType.Blaaa).ToSql();
+			var tolist = g.mysql.Select<testenumWhere>().Where(a => a.type == testenumWhereType.Blaaa).ToList();
+
 			//支持 1对多 联级保存
 
 			using (var ctx = new FreeContext(g.sqlite)) {

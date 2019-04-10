@@ -42,7 +42,7 @@ namespace FreeSql {
 					var var1Vals = Expression.Variable(arrType);
 					tryfunc = Expression.Lambda<Func<object, object[], int>>(Expression.Block(
 						new[] { var1Vals },
-						Expression.Assign(var1Vals, Expression.Convert(FreeSql.Internal.Utils.GetDataReaderValueBlockExpression(arrType, parm2Vals), arrType)),
+						Expression.Assign(var1Vals, Expression.Convert(global::FreeSql.Internal.Utils.GetDataReaderValueBlockExpression(arrType, parm2Vals), arrType)),
 						Expression.Return(returnTarget, Expression.Call(Expression.Convert(parm1DbSet, dbsetType), dbsetTypeMethod, var1Vals)),
 						Expression.Label(returnTarget, Expression.Default(typeof(int)))
 					), new[] { parm1DbSet, parm2Vals }).Compile();

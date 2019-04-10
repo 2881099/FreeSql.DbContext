@@ -4,6 +4,10 @@
 
 ## 更新日志
 
+### v0.4.10
+
+- 补充 开放 DbContext.FreeSql 对象；
+
 ### v0.4.6
 
 - 修复 DbSet AddRange/UpdateRange/RemoveRange 参数为空列表时报错，现在不用判断 data.Any() == true 再执行；

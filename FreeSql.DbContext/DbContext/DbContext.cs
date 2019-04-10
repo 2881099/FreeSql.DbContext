@@ -14,6 +14,8 @@ namespace FreeSql {
 		internal IFreeSql _orm;
 		internal IFreeSql _fsql => _orm ?? throw new ArgumentNullException("请在 OnConfiguring 或 AddFreeDbContext 中配置 UseFreeSql");
 
+		public IFreeSql FreeSql => _fsql;
+
 		IUnitOfWork _uowPriv;
 		internal IUnitOfWork _uow => _isUseUnitOfWork ? (_uowPriv ?? (_uowPriv = new UnitOfWork(_fsql))) : null;
 		internal bool _isUseUnitOfWork = true; //不使用工作单元事务
@@ -25,6 +27,10 @@ namespace FreeSql {
 			OnConfiguring(builder);
 			_orm = builder._fsql;
 
+			if (_orm != null) InitPropSets();
+		}
+
+		internal void InitPropSets() {
 			var props = _dicGetDbSetProps.GetOrAdd(this.GetType(), tp => 
 				tp.GetProperties(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public)
 					.Where(a => a.PropertyType.IsGenericType &&

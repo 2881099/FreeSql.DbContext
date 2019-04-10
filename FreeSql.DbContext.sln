@@ -16,8 +16,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{C11D358B-9
 		readme.md = readme.md
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FreeSql", "..\FreeSql\FreeSql\FreeSql.csproj", "{DB0DE50A-B844-48B4-A056-9F18D604DED0}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "orm_vs", "Examples\orm_vs\orm_vs.csproj", "{0E11197B-63F7-4C16-AA36-7214B177172B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FreeSql.DbContext.Tests", "FreeSql.DbContext.Tests\FreeSql.DbContext.Tests.csproj", "{A2FE3944-61D3-4516-AC0E-DA9181D87ED2}"
@@ -40,10 +38,6 @@ Global
 		{88DE7C66-8B93-45E3-ABF4-2EF1CDFAC479}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{88DE7C66-8B93-45E3-ABF4-2EF1CDFAC479}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{88DE7C66-8B93-45E3-ABF4-2EF1CDFAC479}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DB0DE50A-B844-48B4-A056-9F18D604DED0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DB0DE50A-B844-48B4-A056-9F18D604DED0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DB0DE50A-B844-48B4-A056-9F18D604DED0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DB0DE50A-B844-48B4-A056-9F18D604DED0}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0E11197B-63F7-4C16-AA36-7214B177172B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0E11197B-63F7-4C16-AA36-7214B177172B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0E11197B-63F7-4C16-AA36-7214B177172B}.Release|Any CPU.ActiveCfg = Release|Any CPU

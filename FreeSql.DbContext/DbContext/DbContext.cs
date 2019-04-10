@@ -14,7 +14,7 @@ namespace FreeSql {
 		internal IFreeSql _orm;
 		internal IFreeSql _fsql => _orm ?? throw new ArgumentNullException("请在 OnConfiguring 或 AddFreeDbContext 中配置 UseFreeSql");
 
-		public IFreeSql FreeSql => _fsql;
+		public IFreeSql Orm => _fsql;
 
 		IUnitOfWork _uowPriv;
 		internal IUnitOfWork _uow => _isUseUnitOfWork ? (_uowPriv ?? (_uowPriv = new UnitOfWork(_fsql))) : null;

@@ -20,6 +20,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "orm_vs", "Examples\orm_vs\o
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FreeSql.DbContext.Tests", "FreeSql.DbContext.Tests\FreeSql.DbContext.Tests.csproj", "{A2FE3944-61D3-4516-AC0E-DA9181D87ED2}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FreeSql", "..\FreeSql\FreeSql\FreeSql.csproj", "{59344A6F-F563-4147-94A2-74D70266644E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FreeSql.Repository", "FreeSql.Repository\FreeSql.Repository.csproj", "{9762D0E2-AF2F-431B-B37B-FC00E24DF2AA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -46,6 +50,14 @@ Global
 		{A2FE3944-61D3-4516-AC0E-DA9181D87ED2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A2FE3944-61D3-4516-AC0E-DA9181D87ED2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A2FE3944-61D3-4516-AC0E-DA9181D87ED2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{59344A6F-F563-4147-94A2-74D70266644E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{59344A6F-F563-4147-94A2-74D70266644E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{59344A6F-F563-4147-94A2-74D70266644E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{59344A6F-F563-4147-94A2-74D70266644E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9762D0E2-AF2F-431B-B37B-FC00E24DF2AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9762D0E2-AF2F-431B-B37B-FC00E24DF2AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9762D0E2-AF2F-431B-B37B-FC00E24DF2AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9762D0E2-AF2F-431B-B37B-FC00E24DF2AA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

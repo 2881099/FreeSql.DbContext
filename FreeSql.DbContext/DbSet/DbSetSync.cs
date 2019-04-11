@@ -32,16 +32,14 @@ namespace FreeSql {
 							var idtval = this.OrmInsert(data).ExecuteIdentity();
 							IncrAffrows(1);
 							_fsql.SetEntityIdentityValueWithPrimary(data, idtval);
-							var state = CreateEntityState(data);
-							_states.Add(state.Key, state);
+							Attach(data);
 							AddOrUpdateNavigateList(data);
 						} else {
 							DbContextExecCommand();
 							var newval = this.OrmInsert(data).ExecuteInserted().First();
 							IncrAffrows(1);
 							_fsql.MapEntityValue(newval, data);
-							var state = CreateEntityState(newval);
-							_states.Add(state.Key, state);
+							Attach(newval);
 							AddOrUpdateNavigateList(data);
 						}
 						return;
@@ -53,16 +51,15 @@ namespace FreeSql {
 							var idtval = this.OrmInsert(data).ExecuteIdentity();
 							IncrAffrows(1);
 							_fsql.SetEntityIdentityValueWithPrimary(data, idtval);
-							var state = CreateEntityState(data);
-							_states.Add(state.Key, state);
+							Attach(data);
 							AddOrUpdateNavigateList(data);
 						}
 						return;
 				}
-			} else {
-				EnqueueToDbContext(DbContext.ExecCommandInfoType.Insert, CreateEntityState(data));
-				AddOrUpdateNavigateList(data);
 			}
+			EnqueueToDbContext(DbContext.ExecCommandInfoType.Insert, CreateEntityState(data));
+			Attach(data);
+			AddOrUpdateNavigateList(data);
 		}
 		/// <summary>
 		/// 添加
@@ -87,7 +84,7 @@ namespace FreeSql {
 						foreach (var s in data)
 							_fsql.MapEntityValue(rets[idx++], s);
 						IncrAffrows(rets.Count);
-						TrackToList(rets);
+						AttachRange(rets);
 						foreach (var item in data)
 							AddOrUpdateNavigateList(item);
 						return;
@@ -102,6 +99,7 @@ namespace FreeSql {
 				//进入队列，等待 SaveChanges 时执行
 				foreach (var item in data)
 					EnqueueToDbContext(DbContext.ExecCommandInfoType.Insert, CreateEntityState(item));
+				AttachRange(data);
 				foreach (var item in data)
 					AddOrUpdateNavigateList(item);
 			}

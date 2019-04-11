@@ -33,16 +33,14 @@ namespace FreeSql {
 							var idtval = await this.OrmInsert(data).ExecuteIdentityAsync();
 							IncrAffrows(1);
 							_fsql.SetEntityIdentityValueWithPrimary(data, idtval);
-							var state = CreateEntityState(data);
-							_states.Add(state.Key, state);
+							Attach(data);
 							await AddOrUpdateNavigateListAsync(data);
 						} else {
 							await DbContextExecCommandAsync();
 							var newval = (await this.OrmInsert(data).ExecuteInsertedAsync()).First();
 							IncrAffrows(1);
 							_fsql.MapEntityValue(newval, data);
-							var state = CreateEntityState(newval);
-							_states.Add(state.Key, state);
+							Attach(newval);
 							await AddOrUpdateNavigateListAsync(data);
 						}
 						return;
@@ -54,16 +52,15 @@ namespace FreeSql {
 							var idtval = await this.OrmInsert(data).ExecuteIdentityAsync();
 							IncrAffrows(1);
 							_fsql.SetEntityIdentityValueWithPrimary(data, idtval);
-							var state = CreateEntityState(data);
-							_states.Add(state.Key, state);
+							Attach(data);
 							await AddOrUpdateNavigateListAsync(data);
 						}
 						return;
 				}
-			} else {
-				EnqueueToDbContext(DbContext.ExecCommandInfoType.Insert, CreateEntityState(data));
-				await AddOrUpdateNavigateListAsync(data);
 			}
+			EnqueueToDbContext(DbContext.ExecCommandInfoType.Insert, CreateEntityState(data));
+			Attach(data);
+			await AddOrUpdateNavigateListAsync(data);
 		}
 		public Task AddAsync(TEntity data) => AddPrivAsync(data, true);
 		async public Task AddRangeAsync(IEnumerable<TEntity> data) {
@@ -84,7 +81,7 @@ namespace FreeSql {
 						foreach (var s in data)
 							_fsql.MapEntityValue(rets[idx++], s);
 						IncrAffrows(rets.Count);
-						TrackToList(rets);
+						AttachRange(rets);
 						foreach (var item in data)
 							await AddOrUpdateNavigateListAsync(item);
 						return;
@@ -99,6 +96,7 @@ namespace FreeSql {
 				//进入队列，等待 SaveChanges 时执行
 				foreach (var item in data)
 					EnqueueToDbContext(DbContext.ExecCommandInfoType.Insert, CreateEntityState(item));
+				AttachRange(data);
 				foreach (var item in data)
 					await AddOrUpdateNavigateListAsync(item);
 			}

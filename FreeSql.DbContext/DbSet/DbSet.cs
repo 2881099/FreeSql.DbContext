@@ -129,10 +129,11 @@ namespace FreeSql {
 		/// <param name="data"></param>
 		public void Attach(TEntity data) => AttachRange(new[] { data });
 		public void AttachRange(IEnumerable<TEntity> data) {
-			if (_table.Primarys.Any() == false) throw new Exception($"不可附加，实体没有主键：{_fsql.GetEntityString(data)}");
+			if (data == null || data.Any() == false) return;
+			if (_table.Primarys.Any() == false) throw new Exception($"不可附加，实体没有主键：{_fsql.GetEntityString(data.First())}");
 			foreach (var item in data) {
-				var key = _fsql.GetEntityKeyString(data);
-				if (string.IsNullOrEmpty(key)) throw new Exception($"不可附加，未设置主键的值：{_fsql.GetEntityString(data)}");
+				var key = _fsql.GetEntityKeyString(item);
+				if (string.IsNullOrEmpty(key)) throw new Exception($"不可附加，未设置主键的值：{_fsql.GetEntityString(item)}");
 
 				if (_states.ContainsKey(key)) {
 					_fsql.MapEntityValue(item, _states[key].Value);

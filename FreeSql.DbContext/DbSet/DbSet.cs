@@ -226,7 +226,7 @@ namespace FreeSql {
 				return false;
 			}
 			if (_states.TryGetValue(key, out var tryval) == false) {
-				if (isThrow) throw new Exception($"不可更新，数据未被跟踪，应该先查询：{_fsql.GetEntityString(data)}");
+				if (isThrow) throw new Exception($"不可更新，数据未被跟踪，应该先查询 或者 Attach：{_fsql.GetEntityString(data)}");
 				return false;
 			}
 			return true;

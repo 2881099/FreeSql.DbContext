@@ -9,6 +9,12 @@ namespace FreeSql {
 		Task<TEntity> InsertAsync(TEntity entity);
 		Task<List<TEntity>> InsertAsync(IEnumerable<TEntity> entitys);
 
+		/// <summary>
+		/// 附加实体，可用于不查询就更新或删除
+		/// </summary>
+		/// <param name="entity"></param>
+		void Attach(TEntity entity);
+		void Attach(IEnumerable<TEntity> entity);
 		int Update(TEntity entity);
 		int Update(IEnumerable<TEntity> entitys);
 		Task<int> UpdateAsync(TEntity entity);

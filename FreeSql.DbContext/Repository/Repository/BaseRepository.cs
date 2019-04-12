@@ -116,12 +116,14 @@ namespace FreeSql {
 			return _db.SaveChangesAsync();
 		}
 
+		public void Attach(TEntity data) => _db.Attach(data);
+		public void Attach(IEnumerable<TEntity> data) => _db.AttachRange(data);
+
 		public TEntity InsertOrUpdate(TEntity entity) {
 			_db.DbSet.AddOrUpdate(entity);
 			_db.SaveChanges();
 			return entity;
 		}
-
 		async public Task<TEntity> InsertOrUpdateAsync(TEntity entity) {
 			await _db.DbSet.AddOrUpdateAsync(entity);
 			_db.SaveChanges();

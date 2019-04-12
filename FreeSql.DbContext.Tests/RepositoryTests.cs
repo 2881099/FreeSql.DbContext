@@ -1,12 +1,5 @@
-using FreeSql.DataAnnotations;
-using FreeSql;
 using System;
-using System.Collections.Generic;
 using Xunit;
-using System.Linq;
-using Newtonsoft.Json.Linq;
-using NpgsqlTypes;
-using Npgsql.LegacyPostgis;
 
 namespace FreeSql.Tests {
 	public class RepositoryTests {
@@ -28,6 +21,25 @@ namespace FreeSql.Tests {
 			item = repos.Find(item.Id);
 			Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(item));
 		}
+
+		[Fact]
+		public void UpdateAttach() {
+			var repos = g.sqlite.GetGuidRepository<AddUpdateInfo>();
+
+			var item = new AddUpdateInfo { Id = Guid.NewGuid() };
+			repos.Attach(item);
+
+			item.Title = "xxx";
+			repos.Update(item);
+			Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(item));
+
+			Console.WriteLine(repos.UpdateDiy.Where(a => a.Id == item.Id).Set(a => a.Clicks + 1).ToSql());
+			repos.UpdateDiy.Where(a => a.Id == item.Id).Set(a => a.Clicks + 1).ExecuteAffrows();
+
+			item = repos.Find(item.Id);
+			Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(item));
+		}
+
 		public class AddUpdateInfo {
 
 			public Guid Id { get; set; }

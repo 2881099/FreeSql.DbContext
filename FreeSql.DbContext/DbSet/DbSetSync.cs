@@ -206,8 +206,10 @@ namespace FreeSql {
 		/// </summary>
 		/// <param name="data"></param>
 		public void Update(TEntity data) {
-			if (ExistsInStates(data) == false)
-				OrmSelect(data).First();
+			if (ExistsInStates(data) == false) {
+				var olddata = OrmSelect(data).First();
+				if (olddata == null) throw new Exception($"不可更新，数据库不存在该记录：{_fsql.GetEntityString(data)}");
+			}
 
 			UpdateRangePriv(new[] { data }, true);
 		}
@@ -258,10 +260,13 @@ namespace FreeSql {
 		/// </summary>
 		/// <param name="data"></param>
 		public void AddOrUpdate(TEntity data) {
-			if (ExistsInStates(data) == false)
-				OrmSelect(data).First();
-			
-			if (CanUpdate(data, false)) {
+			var flagExists = true;
+			if (ExistsInStates(data) == false) {
+				var olddata = OrmSelect(data).First();
+				if (olddata == null) flagExists = false;
+			}
+
+			if (flagExists && CanUpdate(data, false)) {
 				DbContextExecCommand();
 				var affrows = _ctx._affrows;
 				UpdateRangePriv(new[] { data }, false);

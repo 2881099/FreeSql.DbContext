@@ -40,6 +40,28 @@ namespace FreeSql.Tests {
 			Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(item));
 		}
 
+		[Fact]
+		public void UpdateWhenNotExists() {
+			var repos = g.sqlite.GetGuidRepository<AddUpdateInfo>();
+
+			var item = new AddUpdateInfo { Id = Guid.NewGuid() };
+			item.Title = "xxx";
+			Assert.Throws<Exception>(() => repos.Update(item));
+		}
+
+		[Fact]
+		public void Update() {
+			g.sqlite.Insert(new AddUpdateInfo()).ExecuteAffrows();
+
+			var repos = g.sqlite.GetGuidRepository<AddUpdateInfo>();
+
+			var item = new AddUpdateInfo { Id = g.sqlite.Select<AddUpdateInfo>().First().Id };
+
+			item.Title = "xxx";
+			repos.Update(item);
+			Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(item));
+		}
+
 		public class AddUpdateInfo {
 
 			public Guid Id { get; set; }

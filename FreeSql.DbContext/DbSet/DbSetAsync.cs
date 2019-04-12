@@ -197,8 +197,10 @@ namespace FreeSql {
 			return 0;
 		}
 		async public Task UpdateAsync(TEntity data) {
-			if (ExistsInStates(data) == false)
-				await OrmSelect(data).FirstAsync();
+			if (ExistsInStates(data) == false) {
+				var olddata = await OrmSelect(data).FirstAsync();
+				if (olddata == null) throw new Exception($"不可更新，数据库不存在该记录：{_fsql.GetEntityString(data)}");
+			}
 
 			await UpdateRangePrivAsync(new[] { data }, true);
 		}
@@ -229,10 +231,13 @@ namespace FreeSql {
 
 		#region AddOrUpdateAsync
 		async public Task AddOrUpdateAsync(TEntity data) {
-			if (ExistsInStates(data) == false)
-				await OrmSelect(data).FirstAsync();
+			var flagExists = true;
+			if (ExistsInStates(data) == false) {
+				var olddata = await OrmSelect(data).FirstAsync();
+				if (olddata == null) flagExists = false;
+			}
 
-			if (CanUpdate(data, false)) {
+			if (flagExists && CanUpdate(data, false)) {
 				await DbContextExecCommandAsync();
 				var affrows = _ctx._affrows;
 				await UpdateRangePrivAsync(new[] { data }, false);

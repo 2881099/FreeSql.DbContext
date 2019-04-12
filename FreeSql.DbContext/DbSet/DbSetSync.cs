@@ -205,7 +205,12 @@ namespace FreeSql {
 		/// 更新
 		/// </summary>
 		/// <param name="data"></param>
-		public void Update(TEntity data) => UpdateRangePriv(new[] { data }, true);
+		public void Update(TEntity data) {
+			if (ExistsInStates(data) == false)
+				OrmSelect(data).First();
+
+			UpdateRangePriv(new[] { data }, true);
+		}
 		public void UpdateRange(IEnumerable<TEntity> data) => UpdateRangePriv(data, true);
 		void UpdateRangePriv(IEnumerable<TEntity> data, bool isCheck) {
 			if (CanUpdate(data, true) == false) return;
@@ -253,6 +258,9 @@ namespace FreeSql {
 		/// </summary>
 		/// <param name="data"></param>
 		public void AddOrUpdate(TEntity data) {
+			if (ExistsInStates(data) == false)
+				OrmSelect(data).First();
+			
 			if (CanUpdate(data, false)) {
 				DbContextExecCommand();
 				var affrows = _ctx._affrows;

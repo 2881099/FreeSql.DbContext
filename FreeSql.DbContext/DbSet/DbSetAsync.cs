@@ -196,7 +196,12 @@ namespace FreeSql {
 			//等待下次对比再保存
 			return 0;
 		}
-		public Task UpdateAsync(TEntity data) => UpdateRangePrivAsync(new[] { data }, true);
+		async public Task UpdateAsync(TEntity data) {
+			if (ExistsInStates(data) == false)
+				await OrmSelect(data).FirstAsync();
+
+			await UpdateRangePrivAsync(new[] { data }, true);
+		}
 		public Task UpdateRangeAsync(IEnumerable<TEntity> data) => UpdateRangePrivAsync(data, true);
 		async Task UpdateRangePrivAsync(IEnumerable<TEntity> data, bool isCheck) {
 			if (CanUpdate(data, true) == false) return;
@@ -224,6 +229,9 @@ namespace FreeSql {
 
 		#region AddOrUpdateAsync
 		async public Task AddOrUpdateAsync(TEntity data) {
+			if (ExistsInStates(data) == false)
+				await OrmSelect(data).FirstAsync();
+
 			if (CanUpdate(data, false)) {
 				await DbContextExecCommandAsync();
 				var affrows = _ctx._affrows;

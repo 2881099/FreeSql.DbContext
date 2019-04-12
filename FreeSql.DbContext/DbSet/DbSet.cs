@@ -153,7 +153,7 @@ namespace FreeSql {
 			return state;
 		}
 		bool ExistsInStates(TEntity data) {
-			if (data == null) throw new ArgumentNullException(nameof(data));
+			if (data == null) return false;
 			var key = _fsql.GetEntityKeyString(data);
 			if (string.IsNullOrEmpty(key)) return false;
 			return _states.ContainsKey(key);

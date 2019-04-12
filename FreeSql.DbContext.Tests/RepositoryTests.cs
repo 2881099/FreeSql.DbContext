@@ -11,6 +11,9 @@ namespace FreeSql.Tests {
 			var item = repos.Insert(new AddUpdateInfo());
 			Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(item));
 
+			item = repos.Insert(new AddUpdateInfo { Id = Guid.NewGuid() });
+			Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(item));
+
 			item.Title = "xxx";
 			repos.Update(item);
 			Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(item));

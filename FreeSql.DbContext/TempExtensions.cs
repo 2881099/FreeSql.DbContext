@@ -9,10 +9,10 @@ using System.Text;
 namespace FreeSql.Extensions.EntityUtil {
 	public static class TempExtensions {
 
+		static ConcurrentDictionary<DataType, ConcurrentDictionary<Type, Action<object, object>>> _dicMapEntityKeyValue = new ConcurrentDictionary<DataType, ConcurrentDictionary<Type, Action<object, object>>>();
 		/// <summary>
 		/// 使用新实体的主键值，复盖旧实体的主键值
 		/// </summary>
-		static ConcurrentDictionary<DataType, ConcurrentDictionary<Type, Action<object, object>>> _dicMapEntityKeyValue = new ConcurrentDictionary<DataType, ConcurrentDictionary<Type, Action<object, object>>>();
 		public static void MapEntityKeyValue<TEntity>(this IFreeSql orm, TEntity from, TEntity to) {
 			var func = _dicMapEntityKeyValue.GetOrAdd(orm.Ado.DataType, dt => new ConcurrentDictionary<Type, Action<object, object>>()).GetOrAdd(typeof(TEntity), t => {
 				var _table = orm.CodeFirst.GetTableByEntity(t);

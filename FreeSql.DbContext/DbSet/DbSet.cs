@@ -173,6 +173,10 @@ namespace FreeSql {
 				if (isThrow) throw new ArgumentNullException(nameof(data));
 				return false;
 			}
+			if (_table.Primarys.Any() == false) {
+				if (isThrow) throw new Exception($"不可添加，实体没有主键：{_fsql.GetEntityString(data)}");
+				return false;
+			}
 			var key = _fsql.GetEntityKeyString(data);
 			if (string.IsNullOrEmpty(key)) {
 				switch (_fsql.Ado.DataType) {

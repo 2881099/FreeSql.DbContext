@@ -121,7 +121,7 @@ namespace FreeSql {
 						if (itemType == null) itemType = item.GetType();
 						if (_table.TypeLazy != null && itemType == _table.TypeLazy) {
 							var lazyField = _dicLazyIsSetField.GetOrAdd(_table.TypeLazy, tl => new ConcurrentDictionary<string, System.Reflection.FieldInfo>()).GetOrAdd(prop.Key, propName => 
-								_table.TypeLazy.GetField($"__lazy__{propName}", System.Reflection.BindingFlags.GetField | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance));
+								_table.TypeLazy.GetField($"__lazy__{propName}", System.Reflection.BindingFlags.GetField | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance));
 							if (lazyField != null) {
 								var lazyFieldValue = (bool)lazyField.GetValue(item);
 								if (lazyFieldValue == false) continue;

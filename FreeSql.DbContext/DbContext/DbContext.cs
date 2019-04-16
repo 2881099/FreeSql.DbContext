@@ -20,6 +20,8 @@ namespace FreeSql {
 		internal IUnitOfWork _uow => _isUseUnitOfWork ? (_uowPriv ?? (_uowPriv = new UnitOfWork(_fsql))) : null;
 		internal bool _isUseUnitOfWork = true; //不使用工作单元事务
 
+		public IUnitOfWork UnitOfWork => _uow;
+
 		static ConcurrentDictionary<Type, PropertyInfo[]> _dicGetDbSetProps = new ConcurrentDictionary<Type, PropertyInfo[]>();
 		protected DbContext() {
 

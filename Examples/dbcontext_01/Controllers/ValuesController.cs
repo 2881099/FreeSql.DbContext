@@ -5,27 +5,25 @@ using System.Threading.Tasks;
 using FreeSql;
 using Microsoft.AspNetCore.Mvc;
 
-namespace dbcontext_01.Controllers
-{
-    [Route("api/[controller]")]
-    [ApiController]
-    public class ValuesController : ControllerBase
-    {
+namespace dbcontext_01.Controllers {
+	[Route("api/[controller]")]
+	[ApiController]
+	public class ValuesController : ControllerBase {
 
 		IFreeSql _orm;
-		public ValuesController(SongContext songContext, 
-			IFreeSql orm1, IFreeSql orm2, 
+		SongContext _songContext;
+		public ValuesController(SongContext songContext,
+			IFreeSql orm1, IFreeSql orm2,
 			IFreeSql<long> orm3
 			) {
-
+			_songContext = songContext;
 			_orm = orm1;
-			
+
 		}
 
 		// GET api/values
 		[HttpGet]
-        async public Task<string> Get()
-        {
+		async public Task<string> Get() {
 
 			long id = 0;
 
@@ -62,11 +60,10 @@ namespace dbcontext_01.Controllers
 				repos2Song.Update(adds.First());
 
 
-				using (var ctx = new SongContext()) {
-
-					var tag = new Tag {
-						Name = "testaddsublist",
-						Tags = new[] {
+				var ctx = _songContext;
+				var tag = new Tag {
+					Name = "testaddsublist",
+					Tags = new[] {
 							new Tag { Name = "sub1" },
 							new Tag { Name = "sub2" },
 							new Tag {
@@ -76,12 +73,15 @@ namespace dbcontext_01.Controllers
 								}
 							}
 						}
-					};
-					ctx.Tags.Add(tag);
+				};
+				ctx.Tags.Add(tag);
 
-					var tagAsync = new Tag {
-						Name = "testaddsublist",
-						Tags = new[] {
+
+				ctx.UnitOfWork.GetOrBeginTransaction();
+
+				var tagAsync = new Tag {
+					Name = "testaddsublist",
+					Tags = new[] {
 							new Tag { Name = "sub1" },
 							new Tag { Name = "sub2" },
 							new Tag {
@@ -91,55 +91,55 @@ namespace dbcontext_01.Controllers
 								}
 							}
 						}
-					};
-					await ctx.Tags.AddAsync(tagAsync);
+				};
+				await ctx.Tags.AddAsync(tagAsync);
 
 
-					ctx.Songs.Select.Where(a => a.Id > 10).ToList();
-					//查询结果，进入 states
+				ctx.Songs.Select.Where(a => a.Id > 10).ToList();
+				//查询结果，进入 states
 
-					song = new Song { };
-					//可插入的 song
+				song = new Song { };
+				//可插入的 song
 
-					ctx.Songs.Add(song);
-					id = song.Id;
-					//因有自增类型，立即开启事务执行SQL，返回自增值
+				ctx.Songs.Add(song);
+				id = song.Id;
+				//因有自增类型，立即开启事务执行SQL，返回自增值
 
-					adds = Enumerable.Range(0, 100)
-						.Select(a => new Song { Create_time = DateTime.Now, Is_deleted = false, Title = "xxxx" + a, Url = "url222" })
-						.ToList();
-					//创建一堆无主键值
+				adds = Enumerable.Range(0, 100)
+					.Select(a => new Song { Create_time = DateTime.Now, Is_deleted = false, Title = "xxxx" + a, Url = "url222" })
+					.ToList();
+				//创建一堆无主键值
 
-					ctx.Songs.AddRange(adds);
-					//立即执行，将自增值赋给 adds 所有元素，因为有自增类型，如果其他类型，指定传入主键值，不会立即执行
+				ctx.Songs.AddRange(adds);
+				//立即执行，将自增值赋给 adds 所有元素，因为有自增类型，如果其他类型，指定传入主键值，不会立即执行
 
-					for (var a = 0; a < 10; a++)
-						adds[a].Title = "dkdkdkdk" + a;
+				for (var a = 0; a < 10; a++)
+					adds[a].Title = "dkdkdkdk" + a;
 
-					ctx.Songs.UpdateRange(adds);
-					//批量修改，进入队列
+				ctx.Songs.UpdateRange(adds);
+				//批量修改，进入队列
 
-					ctx.Songs.RemoveRange(adds.Skip(10).Take(20).ToList());
-					//批量删除，进入队列，完成时 10-20 元素的主键值会被清除
+				ctx.Songs.RemoveRange(adds.Skip(10).Take(20).ToList());
+				//批量删除，进入队列，完成时 10-20 元素的主键值会被清除
 
-					//ctx.Songs.Update(adds.First());
+				//ctx.Songs.Update(adds.First());
 
-					adds.Last().Url = "skldfjlksdjglkjjcccc";
-					ctx.Songs.Update(adds.Last());
+				adds.Last().Url = "skldfjlksdjglkjjcccc";
+				ctx.Songs.Update(adds.Last());
 
-					adds.First().Url = "skldfjlksdjglkjjcccc";
-					ctx.Songs.Update(adds.First());
+				adds.First().Url = "skldfjlksdjglkjjcccc";
+				ctx.Songs.Update(adds.First());
 
-					//单条修改 urls 的值，进入队列
+				//单条修改 urls 的值，进入队列
 
-					//throw new Exception("回滚");
+				//throw new Exception("回滚");
 
-					//ctx.Songs.Select.First();
-					//这里做一个查询，会立即打包【执行队列】，避免没有提交的数据，影响查询结果
+				//ctx.Songs.Select.First();
+				//这里做一个查询，会立即打包【执行队列】，避免没有提交的数据，影响查询结果
 
-					ctx.SaveChanges();
-					//打包【执行队列】，提交事务
-				}
+				ctx.SaveChanges();
+				//打包【执行队列】，提交事务
+
 
 				using (var uow = _orm.CreateUnitOfWork()) {
 
@@ -176,7 +176,7 @@ namespace dbcontext_01.Controllers
 					uow.Commit();
 				}
 
-				
+
 
 				//using (var ctx = new SongContext()) {
 
@@ -217,29 +217,25 @@ namespace dbcontext_01.Controllers
 			return item22.Id.ToString();
 		}
 
-        // GET api/values/5
-        [HttpGet("{id}")]
-        public ActionResult<string> Get(int id)
-        {
-            return "value";
-        }
+		// GET api/values/5
+		[HttpGet("{id}")]
+		public ActionResult<string> Get(int id) {
+			return "value";
+		}
 
-        // POST api/values
-        [HttpPost]
-        public void Post([FromBody] string value)
-        {
-        }
+		// POST api/values
+		[HttpPost]
+		public void Post([FromBody] string value) {
+		}
 
-        // PUT api/values/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
+		// PUT api/values/5
+		[HttpPut("{id}")]
+		public void Put(int id, [FromBody] string value) {
+		}
 
-        // DELETE api/values/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
-        }
-    }
+		// DELETE api/values/5
+		[HttpDelete("{id}")]
+		public void Delete(int id) {
+		}
+	}
 }

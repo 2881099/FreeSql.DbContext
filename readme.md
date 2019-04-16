@@ -4,9 +4,10 @@
 
 ## 更新日志
 
-### v0.4.16
+### v0.5.1
 
 - 补充 开放 DbContext.UnitOfWork 对象，方便扩展并保持在同一个事务执行；
+- 补充 增加 DbSet\<object\>、Repository\<object\> 使用方法，配合 AsType(实体类型)，实现弱类型操作；
 
 ### v0.4.14
 

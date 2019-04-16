@@ -50,6 +50,8 @@ namespace FreeSql {
 			}
 		}
 
+		public void AsType(Type entityType) => _db.DbSet.AsType(entityType);
+
 		public IUnitOfWork UnitOfWork { get; set; }
 		public Type EntityType => _db.DbSet._entityTypeInternal;
 		public IUpdate<TEntity> UpdateDiy => _db.DbSet.OrmUpdateInternal(null);

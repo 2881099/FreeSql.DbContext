@@ -32,14 +32,14 @@ namespace FreeSql {
 							await DbContextExecCommandAsync();
 							var idtval = await this.OrmInsert(data).ExecuteIdentityAsync();
 							IncrAffrows(1);
-							_fsql.SetEntityIdentityValueWithPrimary(data, idtval);
+							_fsql.SetEntityIdentityValueWithPrimary(_entityType, data, idtval);
 							Attach(data);
 							await AddOrUpdateNavigateListAsync(data);
 						} else {
 							await DbContextExecCommandAsync();
 							var newval = (await this.OrmInsert(data).ExecuteInsertedAsync()).First();
 							IncrAffrows(1);
-							_fsql.MapEntityValue(newval, data);
+							_fsql.MapEntityValue(_entityType, newval, data);
 							Attach(newval);
 							await AddOrUpdateNavigateListAsync(data);
 						}
@@ -51,7 +51,7 @@ namespace FreeSql {
 							await DbContextExecCommandAsync();
 							var idtval = await this.OrmInsert(data).ExecuteIdentityAsync();
 							IncrAffrows(1);
-							_fsql.SetEntityIdentityValueWithPrimary(data, idtval);
+							_fsql.SetEntityIdentityValueWithPrimary(_entityType, data, idtval);
 							Attach(data);
 							await AddOrUpdateNavigateListAsync(data);
 						}
@@ -79,7 +79,7 @@ namespace FreeSql {
 						if (rets.Count != data.Count()) throw new Exception($"特别错误：批量添加失败，{_fsql.Ado.DataType} 的返回数据，与添加的数目不匹配");
 						var idx = 0;
 						foreach (var s in data)
-							_fsql.MapEntityValue(rets[idx++], s);
+							_fsql.MapEntityValue(_entityType, rets[idx++], s);
 						IncrAffrows(rets.Count);
 						AttachRange(rets);
 						foreach (var item in data)
@@ -156,10 +156,10 @@ namespace FreeSql {
 
 			if (_states.TryGetValue(uplst1.Key, out var lstval1) == false) return -999;
 			var lstval2 = default(EntityState);
-			if (uplst2 != null && _states.TryGetValue(uplst2.Key, out lstval2) == false) throw new Exception($"特别错误：更新失败，数据未被跟踪：{_fsql.GetEntityString(uplst2.Value)}");
+			if (uplst2 != null && _states.TryGetValue(uplst2.Key, out lstval2) == false) throw new Exception($"特别错误：更新失败，数据未被跟踪：{_fsql.GetEntityString(_entityType, uplst2.Value)}");
 
-			var cuig1 = _fsql.CompareEntityValueReturnColumns(uplst1.Value, lstval1.Value, true);
-			var cuig2 = uplst2 != null ? _fsql.CompareEntityValueReturnColumns(uplst2.Value, lstval2.Value, true) : null;
+			var cuig1 = _fsql.CompareEntityValueReturnColumns(_entityType, uplst1.Value, lstval1.Value, true);
+			var cuig2 = uplst2 != null ? _fsql.CompareEntityValueReturnColumns(_entityType, uplst2.Value, lstval2.Value, true) : null;
 
 			List<EntityState> data = null;
 			string[] cuig = null;
@@ -186,9 +186,9 @@ namespace FreeSql {
 
 				foreach (var newval in data) {
 					if (_states.TryGetValue(newval.Key, out var tryold))
-						_fsql.MapEntityValue(newval.Value, tryold.Value);
+						_fsql.MapEntityValue(_entityType, newval.Value, tryold.Value);
 					if (newval.OldValue != null)
-						_fsql.MapEntityValue(newval.Value, newval.OldValue);
+						_fsql.MapEntityValue(_entityType, newval.Value, newval.OldValue);
 				}
 				return affrows;
 			}
@@ -199,7 +199,7 @@ namespace FreeSql {
 		async public Task UpdateAsync(TEntity data) {
 			if (ExistsInStates(data) == false) {
 				var olddata = await OrmSelect(data).FirstAsync();
-				if (olddata == null) throw new Exception($"不可更新，数据库不存在该记录：{_fsql.GetEntityString(data)}");
+				if (olddata == null) throw new Exception($"不可更新，数据库不存在该记录：{_fsql.GetEntityString(_entityType, data)}");
 			}
 
 			await UpdateRangePrivAsync(new[] { data }, true);
@@ -246,7 +246,7 @@ namespace FreeSql {
 				if (affrows > 0) return;
 			}
 			if (CanAdd(data, false)) {
-				_fsql.ClearEntityPrimaryValueWithIdentity(data);
+				_fsql.ClearEntityPrimaryValueWithIdentity(_entityType, data);
 				await AddPrivAsync(data, false);
 			}
 		}

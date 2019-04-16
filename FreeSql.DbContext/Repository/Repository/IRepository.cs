@@ -7,6 +7,13 @@ namespace FreeSql {
 	public interface IRepository : IDisposable {
 		Type EntityType { get; }
 		IUnitOfWork UnitOfWork { get; set; }
+
+		/// <summary>
+		/// 动态Type，在使用 Repository&lt;object&gt; 后使用本方法，指定实体类型
+		/// </summary>
+		/// <param name="entityType"></param>
+		/// <returns></returns>
+		void AsType(Type entityType);
 	}
 
 	public interface IRepository<TEntity> : IReadOnlyRepository<TEntity>, IBasicRepository<TEntity>

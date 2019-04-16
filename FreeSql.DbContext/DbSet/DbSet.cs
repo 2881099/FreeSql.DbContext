@@ -27,7 +27,7 @@ namespace FreeSql {
 
 		protected virtual ISelect<TEntity> OrmSelect(object dywhere) {
 			DbContextExecCommand(); //查询前先提交，否则会出脏读
-			return _fsql.Select<TEntity>(dywhere).WithTransaction(_uow?.GetOrBeginTransaction(false)).TrackToList(TrackToList);
+			return _fsql.Select<TEntity>().AsType(_entityType).WithTransaction(_uow?.GetOrBeginTransaction(false)).TrackToList(TrackToList).WhereDynamic(dywhere);
 		}
 
 		~DbSet() {
@@ -45,12 +45,12 @@ namespace FreeSql {
 			}
 		}
 
-		protected virtual IInsert<TEntity> OrmInsert() => _fsql.Insert<TEntity>().WithTransaction(_uow?.GetOrBeginTransaction());
-		protected virtual IInsert<TEntity> OrmInsert(TEntity data) => _fsql.Insert<TEntity>(data).WithTransaction(_uow?.GetOrBeginTransaction());
-		protected virtual IInsert<TEntity> OrmInsert(IEnumerable<TEntity> data) => _fsql.Insert<TEntity>(data).WithTransaction(_uow?.GetOrBeginTransaction());
+		protected virtual IInsert<TEntity> OrmInsert() => _fsql.Insert<TEntity>().AsType(_entityType).WithTransaction(_uow?.GetOrBeginTransaction());
+		protected virtual IInsert<TEntity> OrmInsert(TEntity data) => _fsql.Insert<TEntity>().AsType(_entityType).WithTransaction(_uow?.GetOrBeginTransaction()).AppendData(data);
+		protected virtual IInsert<TEntity> OrmInsert(IEnumerable<TEntity> data) => _fsql.Insert<TEntity>().AsType(_entityType).WithTransaction(_uow?.GetOrBeginTransaction()).AppendData(data);
 
-		protected virtual IUpdate<TEntity> OrmUpdate(IEnumerable<TEntity> entitys) => _fsql.Update<TEntity>().SetSource(entitys).WithTransaction(_uow?.GetOrBeginTransaction());
-		protected virtual IDelete<TEntity> OrmDelete(object dywhere) => _fsql.Delete<TEntity>(dywhere).WithTransaction(_uow?.GetOrBeginTransaction());
+		protected virtual IUpdate<TEntity> OrmUpdate(IEnumerable<TEntity> entitys) => _fsql.Update<TEntity>().AsType(_entityType).SetSource(entitys).WithTransaction(_uow?.GetOrBeginTransaction());
+		protected virtual IDelete<TEntity> OrmDelete(object dywhere) => _fsql.Delete<TEntity>().AsType(_entityType).WithTransaction(_uow?.GetOrBeginTransaction()).WhereDynamic(dywhere);
 
 		internal void EnqueueToDbContext(DbContext.ExecCommandInfoType actionType, EntityState state) {
 			_ctx.EnqueueAction(actionType, this, typeof(EntityState), state);
@@ -62,9 +62,9 @@ namespace FreeSql {
 		internal static ConcurrentDictionary<Type, MethodInfo> dicMethodTractToListInternal = new ConcurrentDictionary<Type, MethodInfo>();
 		internal void TractToListInternal(IEnumerable<TEntity> list) {
 			foreach (var item in list) {
-				var key = _fsql.GetEntityKeyString(item);
+				var key = _fsql.GetEntityKeyString(_entityType, item);
 				if (_states.ContainsKey(key)) {
-					_fsql.MapEntityValue(item, _states[key].Value);
+					_fsql.MapEntityValue(_entityType, item, _states[key].Value);
 					_states[key].Time = DateTime.Now;
 				} else {
 					_states.Add(key, CreateEntityState(item));
@@ -89,9 +89,9 @@ namespace FreeSql {
 			if (ls == null) return;
 
 			foreach (var item in ls) {
-				var key = _fsql.GetEntityKeyString(item);
+				var key = _fsql.GetEntityKeyString(_entityType, item);
 				if (_states.ContainsKey(key)) {
-					_fsql.MapEntityValue(item, _states[key].Value);
+					_fsql.MapEntityValue(_entityType, item, _states[key].Value);
 					_states[key].Time = DateTime.Now;
 				} else {
 					_states.Add(key, CreateEntityState(item));
@@ -112,6 +112,21 @@ namespace FreeSql {
 		protected Type _entityType = typeof(TEntity);
 		internal Type _entityTypeInternal => _entityType;
 
+		/// <summary>
+		/// 动态Type，在使用 DbSet&lt;object&gt; 后使用本方法，指定实体类型
+		/// </summary>
+		/// <param name="entityType"></param>
+		/// <returns></returns>
+		public void AsType(Type entityType) {
+			if (entityType == typeof(object)) throw new Exception("ISelect.AsType 参数不支持指定为 object");
+			if (entityType == _entityType) return;
+			var newtb = _fsql.CodeFirst.GetTableByEntity(entityType);
+			if (newtb == null) throw new Exception("DbSet.AsType 参数错误，请传入正确的实体类型");
+			_entityType = entityType;
+			_tablePriv = newtb;
+			_tableIdentitysPriv = null;
+		}
+
 		public class EntityState {
 			public EntityState(TEntity value, string key) {
 				this.Value = value;
@@ -130,13 +145,13 @@ namespace FreeSql {
 		public void Attach(TEntity data) => AttachRange(new[] { data });
 		public void AttachRange(IEnumerable<TEntity> data) {
 			if (data == null || data.Any() == false) return;
-			if (_table.Primarys.Any() == false) throw new Exception($"不可附加，实体没有主键：{_fsql.GetEntityString(data.First())}");
+			if (_table.Primarys.Any() == false) throw new Exception($"不可附加，实体没有主键：{_fsql.GetEntityString(_entityType, data.First())}");
 			foreach (var item in data) {
-				var key = _fsql.GetEntityKeyString(item);
-				if (string.IsNullOrEmpty(key)) throw new Exception($"不可附加，未设置主键的值：{_fsql.GetEntityString(item)}");
+				var key = _fsql.GetEntityKeyString(_entityType, item);
+				if (string.IsNullOrEmpty(key)) throw new Exception($"不可附加，未设置主键的值：{_fsql.GetEntityString(_entityType, item)}");
 
 				if (_states.ContainsKey(key)) {
-					_fsql.MapEntityValue(item, _states[key].Value);
+					_fsql.MapEntityValue(_entityType, item, _states[key].Value);
 					_states[key].Time = DateTime.Now;
 				} else {
 					_states.Add(key, CreateEntityState(item));
@@ -147,14 +162,14 @@ namespace FreeSql {
 		#region Utils
 		EntityState CreateEntityState(TEntity data) {
 			if (data == null) throw new ArgumentNullException(nameof(data));
-			var key = _fsql.GetEntityKeyString(data);
-			var state = new EntityState(Activator.CreateInstance<TEntity>(), key);
-			_fsql.MapEntityValue(data, state.Value);
+			var key = _fsql.GetEntityKeyString(_entityType, data);
+			var state = new EntityState((TEntity)Activator.CreateInstance(_entityType), key);
+			_fsql.MapEntityValue(_entityType, data, state.Value);
 			return state;
 		}
 		bool ExistsInStates(TEntity data) {
 			if (data == null) return false;
-			var key = _fsql.GetEntityKeyString(data);
+			var key = _fsql.GetEntityKeyString(_entityType, data);
 			if (string.IsNullOrEmpty(key)) return false;
 			return _states.ContainsKey(key);
 		}
@@ -174,10 +189,10 @@ namespace FreeSql {
 				return false;
 			}
 			if (_table.Primarys.Any() == false) {
-				if (isThrow) throw new Exception($"不可添加，实体没有主键：{_fsql.GetEntityString(data)}");
+				if (isThrow) throw new Exception($"不可添加，实体没有主键：{_fsql.GetEntityString(_entityType, data)}");
 				return false;
 			}
-			var key = _fsql.GetEntityKeyString(data);
+			var key = _fsql.GetEntityKeyString(_entityType, data);
 			if (string.IsNullOrEmpty(key)) {
 				switch (_fsql.Ado.DataType) {
 					case DataType.SqlServer:
@@ -189,17 +204,17 @@ namespace FreeSql {
 						if (_tableIdentitys.Length == 1 && _table.Primarys.Length == 1) {
 							return true;
 						}
-						if (isThrow) throw new Exception($"不可添加，未设置主键的值：{_fsql.GetEntityString(data)}");
+						if (isThrow) throw new Exception($"不可添加，未设置主键的值：{_fsql.GetEntityString(_entityType, data)}");
 						return false;
 				}
 			} else {
 				if (_states.ContainsKey(key)) {
-					if (isThrow) throw new Exception($"不可添加，已存在于状态管理：{_fsql.GetEntityString(data)}");
+					if (isThrow) throw new Exception($"不可添加，已存在于状态管理：{_fsql.GetEntityString(_entityType, data)}");
 					return false;
 				}
-				var idval = _fsql.GetEntityIdentityValueWithPrimary(data);
+				var idval = _fsql.GetEntityIdentityValueWithPrimary(_entityType, data);
 				if (idval > 0) {
-					if (isThrow) throw new Exception($"不可添加，自增属性有值：{_fsql.GetEntityString(data)}");
+					if (isThrow) throw new Exception($"不可添加，自增属性有值：{_fsql.GetEntityString(_entityType, data)}");
 					return false;
 				}
 			}
@@ -221,16 +236,16 @@ namespace FreeSql {
 				return false;
 			}
 			if (_table.Primarys.Any() == false) {
-				if (isThrow) throw new Exception($"不可更新，实体没有主键：{_fsql.GetEntityString(data)}");
+				if (isThrow) throw new Exception($"不可更新，实体没有主键：{_fsql.GetEntityString(_entityType, data)}");
 				return false;
 			}
-			var key = _fsql.GetEntityKeyString(data);
+			var key = _fsql.GetEntityKeyString(_entityType, data);
 			if (string.IsNullOrEmpty(key)) {
-				if (isThrow) throw new Exception($"不可更新，未设置主键的值：{_fsql.GetEntityString(data)}");
+				if (isThrow) throw new Exception($"不可更新，未设置主键的值：{_fsql.GetEntityString(_entityType, data)}");
 				return false;
 			}
 			if (_states.TryGetValue(key, out var tryval) == false) {
-				if (isThrow) throw new Exception($"不可更新，数据未被跟踪，应该先查询 或者 Attach：{_fsql.GetEntityString(data)}");
+				if (isThrow) throw new Exception($"不可更新，数据未被跟踪，应该先查询 或者 Attach：{_fsql.GetEntityString(_entityType, data)}");
 				return false;
 			}
 			return true;
@@ -251,16 +266,16 @@ namespace FreeSql {
 				return false;
 			}
 			if (_table.Primarys.Any() == false) {
-				if (isThrow) throw new Exception($"不可删除，实体没有主键：{_fsql.GetEntityString(data)}");
+				if (isThrow) throw new Exception($"不可删除，实体没有主键：{_fsql.GetEntityString(_entityType, data)}");
 				return false;
 			}
-			var key = _fsql.GetEntityKeyString(data);
+			var key = _fsql.GetEntityKeyString(_entityType, data);
 			if (string.IsNullOrEmpty(key)) {
-				if (isThrow) throw new Exception($"不可删除，未设置主键的值：{_fsql.GetEntityString(data)}");
+				if (isThrow) throw new Exception($"不可删除，未设置主键的值：{_fsql.GetEntityString(_entityType, data)}");
 				return false;
 			}
 			//if (_states.TryGetValue(key, out var tryval) == false) {
-			//	if (isThrow) throw new Exception($"不可删除，数据未被跟踪，应该先查询：{_fsql.GetEntityString(data)}");
+			//	if (isThrow) throw new Exception($"不可删除，数据未被跟踪，应该先查询：{_fsql.GetEntityString(_entityType, data)}");
 			//	return false;
 			//}
 			return true;

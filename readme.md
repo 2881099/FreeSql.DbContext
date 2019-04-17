@@ -8,7 +8,7 @@
 
 - 补充 开放 DbContext.UnitOfWork 对象，方便扩展并保持在同一个事务执行；
 - 补充 增加 DbSet\<object\>、Repository\<object\> 使用方法，配合 AsType(实体类型)，实现弱类型操作；
-- 修复 DbContext.AddOrUpdate 传入 null 时，任何会查询一次数据库的 bug；
+- 修复 DbContext.AddOrUpdate 传入 null 时，任然会查询一次数据库的 bug；
 - 优化 DbContext.AddOrUpdate 未添加实体主键的错误提醒；
 - 修复 DbContext.Set\<object\> 缓存的 bug，使用多种弱类型时发生；
 

@@ -55,7 +55,7 @@ namespace FreeSql {
 		public virtual object Set(Type entityType) {
 			if (_dicSet.ContainsKey(entityType)) return _dicSet[entityType];
 			var sd = Activator.CreateInstance(typeof(DbContextDbSet<>).MakeGenericType(entityType), this);
-			_dicSet.Add(entityType, sd);
+			if (entityType != typeof(object)) _dicSet.Add(entityType, sd);
 			return sd;
 		}
 		protected Dictionary<string, object> AllSets { get; } = new Dictionary<string, object>();

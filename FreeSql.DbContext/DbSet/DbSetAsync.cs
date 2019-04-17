@@ -231,6 +231,9 @@ namespace FreeSql {
 
 		#region AddOrUpdateAsync
 		async public Task AddOrUpdateAsync(TEntity data) {
+			if (data == null) throw new ArgumentNullException(nameof(data));
+			if (_table.Primarys.Any() == false) throw new Exception($"不可添加，实体没有主键：{_fsql.GetEntityString(_entityType, data)}");
+
 			var flagExists = true;
 			if (ExistsInStates(data) == false) {
 				var olddata = await OrmSelect(data).FirstAsync();

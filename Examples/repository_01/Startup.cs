@@ -2,6 +2,7 @@
 using FreeSql.DataAnnotations;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -66,12 +67,11 @@ namespace repository_01 {
 
 			services.AddSingleton<IFreeSql>(Fsql);
 
-			services.AddFreeRepository(filter => filter
-				//.Apply<Song>("test", a => a.Title == DateTime.Now.ToString() + System.Threading.Thread.CurrentThread.ManagedThreadId)
-				.Apply<ISoftDelete>("softdelete", a => a.IsDeleted == false)
-				,
-				this.GetType().Assembly
-			);
+			services.AddFreeRepository(filter => {
+				filter
+				  //.Apply<Song>("test", a => a.Title == DateTime.Now.ToString() + System.Threading.Thread.CurrentThread.ManagedThreadId)
+				  .Apply<ISoftDelete>("softdelete", a => a.IsDeleted == false);
+			}, this.GetType().Assembly);
 		}
 
 		public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory) {

@@ -1,6 +1,4 @@
-﻿using FreeSql.Extensions.EntityUtil;
-using FreeSql.Internal.Model;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -26,12 +24,14 @@ namespace FreeSql {
 		protected Func<Type, string, string> AsTableSelect { get; private set; }
 		internal Func<Type, string, string> AsTableSelectInternal => AsTableSelect;
 
+		protected void ApplyDataFilter(string name, Expression<Func<TEntity, bool>> exp) => DataFilter.Apply(name, exp);
+
 		protected BaseRepository(IFreeSql fsql, Expression<Func<TEntity, bool>> filter, Func<string, string> asTable = null) {
 			_fsqlInternal = fsql;
+			_db = new RepositoryDbContext<TEntity>(_fsqlInternal, this);
 			DataFilterUtil.SetRepositoryDataFilter(this, null);
 			DataFilter.Apply("", filter);
 			AsTable = asTable;
-			_db = new RepositoryDbContext<TEntity>(_fsqlInternal, this);
 		}
 
 		~BaseRepository() {

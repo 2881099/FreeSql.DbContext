@@ -11,6 +11,8 @@
 - 修复 DbContext.AddOrUpdate 传入 null 时，任何会查询一次数据库的 bug；
 - 优化 DbContext.AddOrUpdate 未添加实体主键的错误提醒；
 - 修复 DbContext.Set\<object\> 缓存的 bug，使用多种弱类型时发生；
+- 修复 IsIgnore 过滤字段后，查询的错误；
+- 修复 全局过滤器功能迁移的遗留 bug；
 
 ### v0.4.14
 

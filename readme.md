@@ -4,6 +4,11 @@
 
 ## 更新日志
 
+### v0.5.2
+
+- 优化 SqlServer UnitOfWork 使用bug，在 FreeSql 内部解决的；
+- 补充 测试与支持联合主键的自增；
+
 ### v0.5.1
 
 - 补充 开放 DbContext.UnitOfWork 对象，方便扩展并保持在同一个事务执行；

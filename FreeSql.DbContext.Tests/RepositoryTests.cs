@@ -72,5 +72,48 @@ namespace FreeSql.Tests {
 
 			public int Clicks { get; set; } = 10;
 		}
+
+		[Fact]
+		public void UnitOfWorkRepository() {
+			foreach (var fsql in new[] { g.sqlite, /*g.mysql,*/ g.pgsql, g.oracle, g.sqlserver }) {
+
+				fsql.CodeFirst.ConfigEntity<FlowModel>(f => {
+					f.Property(b => b.UserId).IsPrimary(true);
+					f.Property(b => b.Id).IsPrimary(true).IsIdentity(true);
+					f.Property(b => b.Name).IsNullable(false);
+				});
+
+				FlowModel flow = new FlowModel() {
+					CreateTime = DateTime.Now,
+					Name = "aaa",
+					LastModifyTime = DateTime.Now,
+					UserId = 1,
+				};
+				var flowRepos = fsql.GetRepository<FlowModel>();
+				flowRepos.Insert(flow);
+
+				//ÊÂÎñÌí¼Ó
+				flow = new FlowModel() {
+					CreateTime = DateTime.Now,
+					Name = "aaa",
+					LastModifyTime = DateTime.Now,
+					UserId = 1,
+				};
+				using (var uow = fsql.CreateUnitOfWork()) {
+					flowRepos = uow.GetRepository<FlowModel>();
+					flowRepos.Insert(flow);
+					uow.Commit();
+				}
+			}
+		}
+		public partial class FlowModel {
+			public int UserId { get; set; }
+			public int Id { get; set; }
+			public int? ParentId { get; set; }
+			public string Name { get; set; }
+			public DateTime CreateTime { get; set; }
+			public DateTime LastModifyTime { get; set; }
+			public string Desc { get; set; }
+		}
 	}
 }

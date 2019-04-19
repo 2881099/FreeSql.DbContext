@@ -27,7 +27,7 @@ namespace FreeSql {
 				switch (_fsql.Ado.DataType) {
 					case DataType.SqlServer:
 					case DataType.PostgreSQL:
-						if (_tableIdentitys.Length == 1 && _table.Primarys.Length == 1) {
+						if (_tableIdentitys.Length == 1) {
 							DbContextExecCommand();
 							var idtval = this.OrmInsert(data).ExecuteIdentity();
 							IncrAffrows(1);
@@ -46,7 +46,7 @@ namespace FreeSql {
 					case DataType.MySql:
 					case DataType.Oracle:
 					case DataType.Sqlite:
-						if (_tableIdentitys.Length == 1 && _table.Primarys.Length == 1) {
+						if (_tableIdentitys.Length == 1) {
 							DbContextExecCommand();
 							var idtval = this.OrmInsert(data).ExecuteIdentity();
 							IncrAffrows(1);

@@ -4,6 +4,10 @@
 
 ## 更新日志
 
+### v0.5.3
+
+- 修复 实体跟踪的 bug，当查询到的实体自增值为 0 时重现；
+
 ### v0.5.2
 
 - 优化 SqlServer UnitOfWork 使用bug，在 FreeSql 内部解决的；

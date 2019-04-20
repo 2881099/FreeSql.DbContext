@@ -90,6 +90,7 @@ namespace FreeSql {
 
 			foreach (var item in ls) {
 				var key = _fsql.GetEntityKeyString(_entityType, item);
+				if (key == null) continue;
 				if (_states.ContainsKey(key)) {
 					_fsql.MapEntityValue(_entityType, item, _states[key].Value);
 					_states[key].Time = DateTime.Now;

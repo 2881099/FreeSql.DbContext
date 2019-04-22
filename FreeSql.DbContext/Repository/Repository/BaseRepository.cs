@@ -141,14 +141,12 @@ namespace FreeSql {
 
 		public int Delete(TKey id) {
 			var stateKey = string.Concat(id);
-			if (_db.DbSet._statesInternal.ContainsKey(stateKey))
-				_db.DbSet._statesInternal.Remove(stateKey);
+			_db.DbSet._statesInternal.TryRemove(stateKey, out var trystate);
 			return _db.DbSet.OrmDeleteInternal(id).ExecuteAffrows();
 		}
 		public Task<int> DeleteAsync(TKey id) {
 			var stateKey = string.Concat(id);
-			if (_db.DbSet._statesInternal.ContainsKey(stateKey))
-				_db.DbSet._statesInternal.Remove(stateKey);
+			_db.DbSet._statesInternal.TryRemove(stateKey, out var trystate);
 			return _db.DbSet.OrmDeleteInternal(id).ExecuteAffrowsAsync();
 		}
 

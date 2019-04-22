@@ -246,7 +246,7 @@ namespace FreeSql {
 			if (CanRemove(data, true) == false) return;
 			foreach (var item in data) {
 				var state = CreateEntityState(item);
-				if (_states.ContainsKey(state.Key)) _states.Remove(state.Key);
+				_states.TryRemove(state.Key, out var trystate);
 				_fsql.ClearEntityPrimaryValueWithIdentityAndGuid(_entityType, item);
 
 				EnqueueToDbContext(DbContext.ExecCommandInfoType.Delete, state);

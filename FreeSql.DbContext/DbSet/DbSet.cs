@@ -63,12 +63,11 @@ namespace FreeSql {
 		internal void TractToListInternal(IEnumerable<TEntity> list) {
 			foreach (var item in list) {
 				var key = _fsql.GetEntityKeyString(_entityType, item);
-				if (_states.ContainsKey(key)) {
-					_fsql.MapEntityValue(_entityType, item, _states[key].Value);
-					_states[key].Time = DateTime.Now;
-				} else {
-					_states.Add(key, CreateEntityState(item));
-				}
+				_states.AddOrUpdate(key, k => CreateEntityState(item), (k, ov) => {
+					_fsql.MapEntityValue(_entityType, item, ov.Value);
+					ov.Time = DateTime.Now;
+					return ov;
+				});
 			}
 		}
 		//internal void TrackToList(object list) {
@@ -91,12 +90,11 @@ namespace FreeSql {
 			foreach (var item in ls) {
 				var key = _fsql.GetEntityKeyString(_entityType, item);
 				if (key == null) continue;
-				if (_states.ContainsKey(key)) {
-					_fsql.MapEntityValue(_entityType, item, _states[key].Value);
-					_states[key].Time = DateTime.Now;
-				} else {
-					_states.Add(key, CreateEntityState(item));
-				}
+				_states.AddOrUpdate(key, k => CreateEntityState(item), (k, ov) => {
+					_fsql.MapEntityValue(_entityType, item, ov.Value);
+					ov.Time = DateTime.Now;
+					return ov;
+				});
 			}
 		}
 
@@ -104,8 +102,8 @@ namespace FreeSql {
 		public ISelect<TEntity> Where(Expression<Func<TEntity, bool>> exp) => this.OrmSelect(null).Where(exp);
 		public ISelect<TEntity> WhereIf(bool condition, Expression<Func<TEntity, bool>> exp) => this.OrmSelect(null).WhereIf(condition, exp);
 
-		protected Dictionary<string, EntityState> _states = new Dictionary<string, EntityState>();
-		internal Dictionary<string, EntityState> _statesInternal => _states;
+		protected ConcurrentDictionary<string, EntityState> _states = new ConcurrentDictionary<string, EntityState>();
+		internal ConcurrentDictionary<string, EntityState> _statesInternal => _states;
 		TableInfo _tablePriv;
 		protected TableInfo _table => _tablePriv ?? (_tablePriv = _fsql.CodeFirst.GetTableByEntity(_entityType));
 		ColumnInfo[] _tableIdentitysPriv;
@@ -151,12 +149,11 @@ namespace FreeSql {
 				var key = _fsql.GetEntityKeyString(_entityType, item);
 				if (string.IsNullOrEmpty(key)) throw new Exception($"不可附加，未设置主键的值：{_fsql.GetEntityString(_entityType, item)}");
 
-				if (_states.ContainsKey(key)) {
-					_fsql.MapEntityValue(_entityType, item, _states[key].Value);
-					_states[key].Time = DateTime.Now;
-				} else {
-					_states.Add(key, CreateEntityState(item));
-				}
+				_states.AddOrUpdate(key, k => CreateEntityState(item), (k, ov) => {
+					_fsql.MapEntityValue(_entityType, item, ov.Value);
+					ov.Time = DateTime.Now;
+					return ov;
+				});
 			}
 		}
 

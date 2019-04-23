@@ -115,5 +115,26 @@ namespace FreeSql.Tests {
 			public DateTime LastModifyTime { get; set; }
 			public string Desc { get; set; }
 		}
+
+		[Fact]
+		public void AsType() {
+			g.sqlite.Insert(new AddUpdateInfo()).ExecuteAffrows();
+
+			var repos = g.sqlite.GetGuidRepository<object>();
+			repos.AsType(typeof(AddUpdateInfo));
+
+			var item = new AddUpdateInfo();
+			repos.Insert(item);
+			repos.Update(item);
+
+			item.Clicks += 1;
+			repos.InsertOrUpdate(item);
+
+			var item2 = repos.Find(item.Id) as AddUpdateInfo;
+			Assert.Equal(item.Clicks, item2.Clicks);
+
+			repos.DataFilter.Apply("xxx", a => (a as AddUpdateInfo).Clicks == 2);
+			Assert.Null(repos.Find(item.Id));
+		}
 	}
 }

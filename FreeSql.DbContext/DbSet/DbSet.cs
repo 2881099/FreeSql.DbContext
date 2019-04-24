@@ -120,9 +120,8 @@ namespace FreeSql {
 			if (entityType == typeof(object)) throw new Exception("ISelect.AsType 参数不支持指定为 object");
 			if (entityType == _entityType) return;
 			var newtb = _fsql.CodeFirst.GetTableByEntity(entityType);
-			if (newtb == null) throw new Exception("DbSet.AsType 参数错误，请传入正确的实体类型");
 			_entityType = entityType;
-			_tablePriv = newtb;
+			_tablePriv = newtb ?? throw new Exception("DbSet.AsType 参数错误，请传入正确的实体类型");
 			_tableIdentitysPriv = null;
 		}
 

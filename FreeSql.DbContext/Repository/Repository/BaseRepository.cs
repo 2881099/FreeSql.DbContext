@@ -8,9 +8,8 @@ namespace FreeSql {
 	public abstract class BaseRepository<TEntity> : IRepository<TEntity>
 		where TEntity : class {
 
-		protected IFreeSql _fsql => _fsqlInternal;
-		internal IFreeSql _fsqlInternal;
-		internal RepositoryDbContext<TEntity> _db;
+		RepositoryDbContext<TEntity> _dbPriv;
+		internal RepositoryDbContext<TEntity> _db => _dbPriv ?? (_dbPriv = new RepositoryDbContext<TEntity>(Orm, this));
 		public IDataFilter<TEntity> DataFilter { get; } = new DataFilter<TEntity>();
 		Func<string, string> _asTableVal;
 		protected Func<string, string> AsTable {
@@ -27,8 +26,7 @@ namespace FreeSql {
 		protected void ApplyDataFilter(string name, Expression<Func<TEntity, bool>> exp) => DataFilter.Apply(name, exp);
 
 		protected BaseRepository(IFreeSql fsql, Expression<Func<TEntity, bool>> filter, Func<string, string> asTable = null) {
-			_fsqlInternal = fsql;
-			_db = new RepositoryDbContext<TEntity>(_fsqlInternal, this);
+			Orm = fsql;
 			DataFilterUtil.SetRepositoryDataFilter(this, null);
 			DataFilter.Apply("", filter);
 			AsTable = asTable;
@@ -41,19 +39,20 @@ namespace FreeSql {
 		public void Dispose() {
 			if (_isdisposed) return;
 			try {
-				_db.DbSet.Dispose();
-				_db.Dispose();
+				_dbPriv?.DbSet.Dispose();
+				_dbPriv?.Dispose();
 				this.DataFilter.Dispose();
 			} finally {
 				_isdisposed = true;
 				GC.SuppressFinalize(this);
 			}
 		}
+		public Type EntityType => _dbPriv?.DbSet._entityTypeInternal ?? typeof(TEntity);
 
 		public void AsType(Type entityType) => _db.DbSet.AsType(entityType);
 
+		public IFreeSql Orm { get; private set; }
 		public IUnitOfWork UnitOfWork { get; set; }
-		public Type EntityType => _db.DbSet._entityTypeInternal;
 		public IUpdate<TEntity> UpdateDiy => _db.DbSet.OrmUpdateInternal(null);
 
 		public ISelect<TEntity> Select => _db.DbSet.OrmSelectInternal(null);

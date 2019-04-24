@@ -7,6 +7,7 @@ namespace FreeSql {
 	public interface IRepository : IDisposable {
 		Type EntityType { get; }
 		IUnitOfWork UnitOfWork { get; set; }
+		IFreeSql Orm { get; }
 
 		/// <summary>
 		/// 动态Type，在使用 Repository&lt;object&gt; 后使用本方法，指定实体类型

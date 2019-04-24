@@ -10,13 +10,14 @@ namespace FreeSql {
 		protected BaseRepository<TEntity> _repos;
 		public RepositoryDbSet(BaseRepository<TEntity> repos) {
 			_ctx = repos._db;
-			_fsql = repos._fsqlInternal;
+			_fsql = repos.Orm;
 			_uow = repos.UnitOfWork;
 			_repos = repos;
 		}
 
 		protected override ISelect<TEntity> OrmSelect(object dywhere) {
 			var select = base.OrmSelect(dywhere);
+
 			var filters = (_repos.DataFilter as DataFilter<TEntity>)._filters.Where(a => a.Value.IsEnabled == true);
 			foreach (var filter in filters) select.Where(filter.Value.Expression);
 			return select.AsTable(_repos.AsTableSelectInternal);

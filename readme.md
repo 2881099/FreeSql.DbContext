@@ -4,6 +4,10 @@
 
 ## 更新日志
 
+### v0.5.5
+
+- 修复 MapEntityValue 对 IsIgnore 未处理的 bug；
+
 ### v0.5.4
 
 - 修复 Repository 追加导航集合的保存 bug；

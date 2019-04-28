@@ -10,7 +10,7 @@ using System.Linq.Expressions;
 namespace FreeSql {
 	partial class DbContext {
 
-		public int SaveChanges() {
+		public virtual int SaveChanges() {
 			ExecCommand();
 			_uow?.Commit();
 			var ret = _affrows;

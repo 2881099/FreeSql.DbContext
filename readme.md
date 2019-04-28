@@ -4,6 +4,10 @@
 
 ## 更新日志
 
+### v0.5.7
+
+- 修复 UnitOfWork.GetRepository() 事务 bug，原因：仓储的每步操作都提交了事务；
+
 ### v0.5.5
 
 - 修复 MapEntityValue 对 IsIgnore 未处理的 bug；

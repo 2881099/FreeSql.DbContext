@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace FreeSql {
 	partial class DbContext {
 
-		async public Task<int> SaveChangesAsync() {
+		async public virtual Task<int> SaveChangesAsync() {
 			await ExecCommandAsync();
 			_uow?.Commit();
 			var ret = _affrows;

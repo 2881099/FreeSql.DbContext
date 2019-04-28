@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace FreeSql {
 	internal class RepositoryDbContext<TEntity> : DbContext where TEntity : class {
@@ -10,6 +11,7 @@ namespace FreeSql {
 			_orm = orm;
 			_repos = repos;
 			_isUseUnitOfWork = false;
+			_uowPriv = _repos.UnitOfWork;
 		}
 
 		public override object Set(Type entityType) {
@@ -33,5 +35,18 @@ namespace FreeSql {
 
 		RepositoryDbSet<TEntity> _dbSet;
 		public RepositoryDbSet<TEntity> DbSet => _dbSet ?? (_dbSet = Set<TEntity>() as RepositoryDbSet<TEntity>);
+
+		public override int SaveChanges() {
+			ExecCommand();
+			var ret = _affrows;
+			_affrows = 0;
+			return ret;
+		}
+		async public override Task<int> SaveChangesAsync() {
+			await ExecCommandAsync();
+			var ret = _affrows;
+			_affrows = 0;
+			return ret;
+		}
 	}
 }

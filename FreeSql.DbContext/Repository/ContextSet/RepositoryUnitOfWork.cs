@@ -19,7 +19,6 @@ namespace FreeSql {
 		/// 在工作单元内创建联合主键的仓储类，工作单元下的仓储操作具有事务特点
 		/// </summary>
 		/// <typeparam name="TEntity"></typeparam>
-		/// <param name="that"></param>
 		/// <param name="filter">数据过滤 + 验证</param>
 		/// <returns></returns>
 		BaseRepository<TEntity> GetRepository<TEntity>(Expression<Func<TEntity, bool>> filter = null) where TEntity : class;

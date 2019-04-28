@@ -16,7 +16,7 @@ namespace FreeSql {
 
 		public IFreeSql Orm => _fsql;
 
-		IUnitOfWork _uowPriv;
+		protected IUnitOfWork _uowPriv;
 		internal IUnitOfWork _uow => _isUseUnitOfWork ? (_uowPriv ?? (_uowPriv = new UnitOfWork(_fsql))) : null;
 		internal bool _isUseUnitOfWork = true; //不使用工作单元事务
 

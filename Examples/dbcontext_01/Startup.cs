@@ -20,7 +20,7 @@ namespace dbcontext_01
             Configuration = configuration;
 
 			Fsql = new FreeSql.FreeSqlBuilder()
-				.UseConnectionString(FreeSql.DataType.Sqlite, @"Data Source=|DataDirectory|\document.db;Pooling=true;Max Pool Size=10")
+				.UseConnectionString(FreeSql.DataType.Sqlite, @"Data Source=|DataDirectory|\document2.db;Pooling=true;Max Pool Size=10")
 				//.UseConnectionString(FreeSql.DataType.SqlServer, "Data Source=.;Integrated Security=True;Initial Catalog=freesqlTest;Pooling=true;Max Pool Size=10")
 
 				//.UseConnectionString(FreeSql.DataType.Oracle, "user id=user1;password=123456;data source=//127.0.0.1:1521/XE;Pooling=true;Max Pool Size=10")
@@ -34,6 +34,19 @@ namespace dbcontext_01
 					(cmd, log) => Trace.WriteLine(log)
 				)
 				.Build();
+			Fsql.Aop.SyncStructureBefore = (s, e) => {
+				Console.WriteLine(e.Identifier + ": " + string.Join(", ", e.EntityTypes.Select(a => a.FullName)));
+			};
+			Fsql.Aop.SyncStructureAfter = (s, e) => {
+				Console.WriteLine(e.Identifier + ": " + string.Join(", ", e.EntityTypes.Select(a => a.FullName)) + " " + e.ElapsedMilliseconds + "ms\r\n" + e.Exception?.Message + e.Sql);
+			};
+
+			Fsql.Aop.CurdBefore = (s, e) => {
+				Console.WriteLine(e.Identifier + ": " + e.EntityType.FullName + ", " + e.Sql);
+			};
+			Fsql.Aop.CurdAfter = (s, e) => {
+				Console.WriteLine(e.Identifier + ": " + e.EntityType.FullName + " " + e.ElapsedMilliseconds + "ms, " + e.Sql);
+			};
 
 			Fsql2 = new FreeSql.FreeSqlBuilder()
 				.UseConnectionString(FreeSql.DataType.Sqlite, @"Data Source=|DataDirectory|\document222.db;Pooling=true;Max Pool Size=10")

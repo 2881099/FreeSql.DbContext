@@ -20,6 +20,10 @@ namespace FreeSql.Tests {
 		[Fact]
 		public void Add() {
 
+			g.sqlite.SetDbContextOptions(opt => {
+				//opt.EnableAddOrUpdateNavigateList = false;
+			});
+
 			g.mysql.Insert<testenumWhere>().AppendData(new testenumWhere { type = testenumWhereType.Blaaa }).ExecuteAffrows();
 
 			var sql = g.mysql.Select<testenumWhere>().Where(a => a.type == testenumWhereType.Blaaa).ToSql();

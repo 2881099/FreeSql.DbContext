@@ -39,6 +39,11 @@
             <typeparam name="TEntity"></typeparam>
             <param name="data"></param>
         </member>
+        <member name="P:FreeSql.DbContextOptions.EnableAddOrUpdateNavigateList">
+            <summary>
+            是否开启一对多，联级保存功能
+            </summary>
+        </member>
         <member name="M:FreeSql.DbSet`1.AsType(System.Type)">
             <summary>
             动态Type，在使用 DbSet&lt;object&gt; 后使用本方法，指定实体类型
@@ -155,6 +160,13 @@
             <typeparam name="T"></typeparam>
             <param name="select"></param>
             <returns></returns>
+        </member>
+        <member name="M:FreeSqlDbContextExtenssions.SetDbContextOptions(IFreeSql,System.Action{FreeSql.DbContextOptions})">
+            <summary>
+            设置 DbContext 选项设置
+            </summary>
+            <param name="that"></param>
+            <param name="options"></param>
         </member>
         <member name="M:FreeSqlRepositoryExtenssions.GetRepository``2(IFreeSql,System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}})">
             <summary>

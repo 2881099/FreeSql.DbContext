@@ -1,4 +1,6 @@
 ﻿using FreeSql;
+using System;
+using System.Collections.Concurrent;
 
 public static class FreeSqlDbContextExtenssions {
 
@@ -20,4 +22,17 @@ public static class FreeSqlDbContextExtenssions {
 	public static ISelect<T> NoTracking<T>(this ISelect<T> select) where T : class {
 		return select.TrackToList(null);
 	}
+
+	/// <summary>
+	/// 设置 DbContext 选项设置
+	/// </summary>
+	/// <param name="that"></param>
+	/// <param name="options"></param>
+	public static void SetDbContextOptions(this IFreeSql that, Action<DbContextOptions> options) {
+		if (options == null) return;
+		var cfg = _dicSetDbContextOptions.GetOrAdd(that, t => new DbContextOptions());
+		options(cfg);
+		_dicSetDbContextOptions.AddOrUpdate(that, cfg, (t, o) => cfg);
+	}
+	internal static ConcurrentDictionary<IFreeSql, DbContextOptions> _dicSetDbContextOptions = new ConcurrentDictionary<IFreeSql, DbContextOptions>();
 }

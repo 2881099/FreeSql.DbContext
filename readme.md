@@ -4,6 +4,11 @@
 
 ## 更新日志
 
+### v0.5.8
+
+- 增加 IFreeSql.SetDbContextOptions 设置 DbContext 的功能：开启或禁用连级一对多导航集合属性保存的功能，EnableAddOrUpdateNavigateList（默认开启）；
+- 增加 IUnitOfWork.IsolationLevel 设置事务级别；
+
 ### v0.5.7
 
 - 修复 UnitOfWork.GetRepository() 事务 bug，原因：仓储的每步操作都提交了事务；

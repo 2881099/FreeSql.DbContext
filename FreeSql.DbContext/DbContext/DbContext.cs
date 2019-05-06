@@ -22,6 +22,16 @@ namespace FreeSql {
 
 		public IUnitOfWork UnitOfWork => _uow;
 
+		DbContextOptions _options;
+		internal DbContextOptions Options {
+			get {
+				if (_options != null) return _options;
+				if (FreeSqlDbContextExtenssions._dicSetDbContextOptions.TryGetValue(Orm, out _options)) return _options;
+				_options = new DbContextOptions();
+				return _options;
+			}
+		}
+
 		static ConcurrentDictionary<Type, PropertyInfo[]> _dicGetDbSetProps = new ConcurrentDictionary<Type, PropertyInfo[]>();
 		protected DbContext() {
 

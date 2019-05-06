@@ -33,14 +33,16 @@ namespace FreeSql {
 							IncrAffrows(1);
 							_fsql.SetEntityIdentityValueWithPrimary(_entityType, data, idtval);
 							Attach(data);
-							AddOrUpdateNavigateList(data);
+							if (_ctx.Options.EnableAddOrUpdateNavigateList)
+								AddOrUpdateNavigateList(data);
 						} else {
 							DbContextExecCommand();
 							var newval = this.OrmInsert(data).ExecuteInserted().First();
 							IncrAffrows(1);
 							_fsql.MapEntityValue(_entityType, newval, data);
 							Attach(newval);
-							AddOrUpdateNavigateList(data);
+							if (_ctx.Options.EnableAddOrUpdateNavigateList)
+								AddOrUpdateNavigateList(data);
 						}
 						return;
 					case DataType.MySql:
@@ -52,14 +54,16 @@ namespace FreeSql {
 							IncrAffrows(1);
 							_fsql.SetEntityIdentityValueWithPrimary(_entityType, data, idtval);
 							Attach(data);
-							AddOrUpdateNavigateList(data);
+							if (_ctx.Options.EnableAddOrUpdateNavigateList)
+								AddOrUpdateNavigateList(data);
 						}
 						return;
 				}
 			}
 			EnqueueToDbContext(DbContext.ExecCommandInfoType.Insert, CreateEntityState(data));
 			Attach(data);
-			AddOrUpdateNavigateList(data);
+			if (_ctx.Options.EnableAddOrUpdateNavigateList)
+				AddOrUpdateNavigateList(data);
 		}
 		/// <summary>
 		/// 添加
@@ -85,8 +89,9 @@ namespace FreeSql {
 							_fsql.MapEntityValue(_entityType, rets[idx++], s);
 						IncrAffrows(rets.Count);
 						AttachRange(rets);
-						foreach (var item in data)
-							AddOrUpdateNavigateList(item);
+						if (_ctx.Options.EnableAddOrUpdateNavigateList)
+							foreach (var item in data)
+								AddOrUpdateNavigateList(item);
 						return;
 					case DataType.MySql:
 					case DataType.Oracle:
@@ -100,8 +105,9 @@ namespace FreeSql {
 				foreach (var item in data)
 					EnqueueToDbContext(DbContext.ExecCommandInfoType.Insert, CreateEntityState(item));
 				AttachRange(data);
-				foreach (var item in data)
-					AddOrUpdateNavigateList(item);
+				if (_ctx.Options.EnableAddOrUpdateNavigateList)
+					foreach (var item in data)
+						AddOrUpdateNavigateList(item);
 			}
 		}
 		static ConcurrentDictionary<Type, ConcurrentDictionary<string, System.Reflection.FieldInfo>> _dicLazyIsSetField = new ConcurrentDictionary<Type, ConcurrentDictionary<string, System.Reflection.FieldInfo>>();
@@ -225,8 +231,9 @@ namespace FreeSql {
 				state.OldValue = item;
 				EnqueueToDbContext(DbContext.ExecCommandInfoType.Update, state);
 			}
-			foreach (var item in data)
-				AddOrUpdateNavigateList(item);
+			if (_ctx.Options.EnableAddOrUpdateNavigateList)
+				foreach (var item in data)
+					AddOrUpdateNavigateList(item);
 		}
 		#endregion
 

@@ -1,6 +1,7 @@
 ﻿using SafeObjectPool;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using System.Linq.Expressions;
 using System.Text;
@@ -21,6 +22,9 @@ namespace FreeSql {
 			_tran = null;
 			_conn = null;
 		}
+
+		public IsolationLevel? IsolationLevel { get; set; }
+
 		public DbTransaction GetOrBeginTransaction(bool isCreate = true) {
 
 			if (_tran != null) return _tran;
@@ -29,7 +33,9 @@ namespace FreeSql {
 
 			_conn = _fsql.Ado.MasterPool.Get();
 			try {
-				_tran = _conn.Value.BeginTransaction();
+				_tran = IsolationLevel == null ? 
+					_conn.Value.BeginTransaction() : 
+					_conn.Value.BeginTransaction(IsolationLevel.Value);
 			} catch {
 				ReturnObject();
 				throw;
@@ -68,6 +74,5 @@ namespace FreeSql {
 				GC.SuppressFinalize(this);
 			}
 		}
-
 	}
 }

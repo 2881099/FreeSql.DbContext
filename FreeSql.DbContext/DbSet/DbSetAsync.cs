@@ -34,14 +34,16 @@ namespace FreeSql {
 							IncrAffrows(1);
 							_fsql.SetEntityIdentityValueWithPrimary(_entityType, data, idtval);
 							Attach(data);
-							await AddOrUpdateNavigateListAsync(data);
+							if (_ctx.Options.EnableAddOrUpdateNavigateList)
+								await AddOrUpdateNavigateListAsync(data);
 						} else {
 							await DbContextExecCommandAsync();
 							var newval = (await this.OrmInsert(data).ExecuteInsertedAsync()).First();
 							IncrAffrows(1);
 							_fsql.MapEntityValue(_entityType, newval, data);
 							Attach(newval);
-							await AddOrUpdateNavigateListAsync(data);
+							if (_ctx.Options.EnableAddOrUpdateNavigateList)
+								await AddOrUpdateNavigateListAsync(data);
 						}
 						return;
 					case DataType.MySql:
@@ -53,14 +55,16 @@ namespace FreeSql {
 							IncrAffrows(1);
 							_fsql.SetEntityIdentityValueWithPrimary(_entityType, data, idtval);
 							Attach(data);
-							await AddOrUpdateNavigateListAsync(data);
+							if (_ctx.Options.EnableAddOrUpdateNavigateList)
+								await AddOrUpdateNavigateListAsync(data);
 						}
 						return;
 				}
 			}
 			EnqueueToDbContext(DbContext.ExecCommandInfoType.Insert, CreateEntityState(data));
 			Attach(data);
-			await AddOrUpdateNavigateListAsync(data);
+			if (_ctx.Options.EnableAddOrUpdateNavigateList)
+				await AddOrUpdateNavigateListAsync(data);
 		}
 		public Task AddAsync(TEntity data) => AddPrivAsync(data, true);
 		async public Task AddRangeAsync(IEnumerable<TEntity> data) {
@@ -82,8 +86,9 @@ namespace FreeSql {
 							_fsql.MapEntityValue(_entityType, rets[idx++], s);
 						IncrAffrows(rets.Count);
 						AttachRange(rets);
-						foreach (var item in data)
-							await AddOrUpdateNavigateListAsync(item);
+						if (_ctx.Options.EnableAddOrUpdateNavigateList)
+							foreach (var item in data)
+								await AddOrUpdateNavigateListAsync(item);
 						return;
 					case DataType.MySql:
 					case DataType.Oracle:
@@ -97,8 +102,9 @@ namespace FreeSql {
 				foreach (var item in data)
 					EnqueueToDbContext(DbContext.ExecCommandInfoType.Insert, CreateEntityState(item));
 				AttachRange(data);
-				foreach (var item in data)
-					await AddOrUpdateNavigateListAsync(item);
+				if (_ctx.Options.EnableAddOrUpdateNavigateList)
+					foreach (var item in data)
+						await AddOrUpdateNavigateListAsync(item);
 			}
 		}
 		async Task AddOrUpdateNavigateListAsync(TEntity item) {
@@ -216,8 +222,9 @@ namespace FreeSql {
 				state.OldValue = item;
 				EnqueueToDbContext(DbContext.ExecCommandInfoType.Update, state);
 			}
-			foreach (var item in data)
-				await AddOrUpdateNavigateListAsync(item);
+			if (_ctx.Options.EnableAddOrUpdateNavigateList)
+				foreach (var item in data)
+					await AddOrUpdateNavigateListAsync(item);
 		}
 		#endregion
 

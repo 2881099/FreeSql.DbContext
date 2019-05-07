@@ -4,6 +4,11 @@
 
 ## 更新日志
 
+### v0.5.9
+
+- 增加 linq to sql 的查询语法，以及单元测试，[wiki](https://github.com/2881099/FreeSql/wiki/LinqToSql)；
+- 修复 EnableAddOrUpdateNavigateList 设置对异步方法无效的 bug；
+
 ### v0.5.8
 
 - 增加 IFreeSql.SetDbContextOptions 设置 DbContext 的功能：开启或禁用连级一对多导航集合属性保存的功能，EnableAddOrUpdateNavigateList（默认开启）；

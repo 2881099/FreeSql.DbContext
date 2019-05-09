@@ -75,7 +75,7 @@ namespace FreeSql.Tests {
 
 		[Fact]
 		public void UnitOfWorkRepository() {
-			foreach (var fsql in new[] { g.sqlite, /*g.mysql,*/ g.pgsql, g.oracle, g.sqlserver }) {
+			foreach (var fsql in new[] { g.sqlite, /*g.mysql, g.pgsql, g.oracle, g.sqlserver*/ }) {
 
 				fsql.CodeFirst.ConfigEntity<FlowModel>(f => {
 					f.Property(b => b.UserId).IsPrimary(true);
@@ -104,9 +104,130 @@ namespace FreeSql.Tests {
 					flowRepos.Insert(flow);
 					uow.Commit();
 				}
-			}
+            }
 		}
-		public partial class FlowModel {
+
+        [Fact]
+        public void UnitOfWorkRepositoryWithDisableBeforeInsert()
+        {
+            foreach (var fsql in new[] { g.sqlite,  })
+            {
+                fsql.CodeFirst.ConfigEntity<FlowModel>(f => {
+                    f.Property(b => b.UserId).IsPrimary(true);
+                    f.Property(b => b.Id).IsPrimary(true).IsIdentity(true);
+                    f.Property(b => b.Name).IsNullable(false);
+                });
+
+                var flowRepos = fsql.GetRepository<FlowModel>();
+
+                var flow = new FlowModel()
+                {
+                    CreateTime = DateTime.Now,
+                    Name = "aaa",
+                    LastModifyTime = DateTime.Now,
+                    UserId = 1,
+                };
+
+                //清理掉数据库中已存在的数据，为了接下来的插入测试
+                flowRepos.Delete(a => a.UserId == 1 &&a.Name== "aaa");
+
+                using (var uow = fsql.CreateUnitOfWork())
+                {
+                    //关闭工作单元（不会开始事务）
+                    uow.Disable();
+                    var uowFlowRepos = uow.GetRepository<FlowModel>();
+                    uowFlowRepos.Insert(flow);
+                    //已关闭工作单元，提不提交都没影响，此处注释来确定工作单元开关是否生效：关闭了，不Commit也应该插入数据
+                    //uow.Commit();
+                }
+                
+                Assert.True(flowRepos.Select.Any(a => a.UserId == 1 && a.Name == "aaa"));
+            }
+
+        }
+
+        [Fact]
+        public void UnitOfWorkRepositoryWithDisableAfterInsert()
+        {
+            foreach (var fsql in new[] {g.sqlite,})
+            {
+                fsql.CodeFirst.ConfigEntity<FlowModel>(f =>
+                {
+                    f.Property(b => b.UserId).IsPrimary(true);
+                    f.Property(b => b.Id).IsPrimary(true).IsIdentity(true);
+                    f.Property(b => b.Name).IsNullable(false);
+                });
+
+                var flowRepos = fsql.GetRepository<FlowModel>();
+
+                //清理掉数据库中已存在的数据，为了接下来的插入测试
+                flowRepos.Delete(a => a.UserId == 1 && a.Name == "aaa");
+
+                var flow = new FlowModel()
+                {
+                    CreateTime = DateTime.Now,
+                    Name = "aaa",
+                    LastModifyTime = DateTime.Now,
+                    UserId = 1,
+                };
+
+
+                Assert.Throws<Exception>(() =>
+                {
+                    using (var uow = fsql.CreateUnitOfWork())
+                    {
+                        var uowFlowRepos = uow.GetRepository<FlowModel>();
+                        uowFlowRepos.Insert(flow);
+                        //有了任意 Insert/Update/Delete 调用关闭uow的方法将会发生异常
+                        uow.Disable();
+                        uow.Commit();
+                    }
+
+                });
+            }
+        }
+
+        [Fact]
+        public void UnitOfWorkRepositoryWithoutDisable()
+        {
+            foreach (var fsql in new[] { g.sqlite, })
+            {
+                fsql.CodeFirst.ConfigEntity<FlowModel>(f =>
+                {
+                    f.Property(b => b.UserId).IsPrimary(true);
+                    f.Property(b => b.Id).IsPrimary(true).IsIdentity(true);
+                    f.Property(b => b.Name).IsNullable(false);
+                });
+
+                var flowRepos = fsql.GetRepository<FlowModel>();
+                if (flowRepos.Select.Any(a => a.UserId == 1 && a.Name == "aaa"))
+                {
+                    flowRepos.Delete(a => a.UserId == 1);
+                }
+
+
+                var flow = new FlowModel()
+                {
+                    CreateTime = DateTime.Now,
+                    Name = "aaa",
+                    LastModifyTime = DateTime.Now,
+                    UserId = 1,
+                };
+
+
+                using (var uow = fsql.CreateUnitOfWork())
+                {
+                    var uowFlowRepos = uow.GetRepository<FlowModel>();
+                    uowFlowRepos.Insert(flow);
+                    //不调用commit将不会提交数据库更改
+                    //uow.Commit();
+                }
+                Assert.False(flowRepos.Select.Any(a => a.UserId == 1 && a.Name == "aaa"));
+            }
+        }
+
+
+        public partial class FlowModel {
 			public int UserId { get; set; }
 			public int Id { get; set; }
 			public int? ParentId { get; set; }

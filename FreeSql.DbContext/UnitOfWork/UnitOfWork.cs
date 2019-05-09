@@ -23,12 +23,35 @@ namespace FreeSql {
 			_conn = null;
 		}
 
-		public IsolationLevel? IsolationLevel { get; set; }
+
+        /// <summary>
+        /// 是否启用工作单元
+        /// </summary>
+        public bool Enable { get; private set; } = true;
+
+        /// <summary>
+        /// 禁用工作单元
+        /// <exception cref="Exception"></exception>
+        /// <para></para>
+        /// 若已开启事务（已有Insert/Update/Delete操作），调用此方法将发生异常，建议在执行逻辑前调用
+        /// </summary>
+        public void Disable()
+        {
+            if (_tran != null)
+            {
+                throw new Exception("已开启事务，不能禁用工作单元");
+            }
+
+            Enable = false;
+        }
+
+        public IsolationLevel? IsolationLevel { get; set; }
 
 		public DbTransaction GetOrBeginTransaction(bool isCreate = true) {
 
 			if (_tran != null) return _tran;
 			if (isCreate == false) return null;
+            if (!Enable) return null;
 			if (_conn != null) _fsql.Ado.MasterPool.Return(_conn);
 
 			_conn = _fsql.Ado.MasterPool.Get();

@@ -17,6 +17,9 @@ namespace FreeSql {
 		public override object Set(Type entityType) {
 			if (_dicSet.ContainsKey(entityType)) return _dicSet[entityType];
 
+			var tb = _orm.CodeFirst.GetTableByEntity(entityType);
+			if (tb == null) return null;
+
 			object repos = _repos;
 			if (entityType != typeof(TEntity)) {
 				var filter = _repos.DataFilter as DataFilter<TEntity>;

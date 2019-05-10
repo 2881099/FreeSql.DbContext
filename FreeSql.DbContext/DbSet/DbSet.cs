@@ -71,7 +71,7 @@ namespace FreeSql {
 					if (itemType == typeof(object)) return;
 					if (itemType.FullName.StartsWith("Submission#0+FreeSqlLazy")) itemType = itemType.BaseType;
 					var dbset = _ctx.Set(itemType);
-					dbset.GetType().GetMethod("TrackToList", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(dbset, new object[] { list });
+					dbset?.GetType().GetMethod("TrackToList", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(dbset, new object[] { list });
 					return;
 				}
 				return;

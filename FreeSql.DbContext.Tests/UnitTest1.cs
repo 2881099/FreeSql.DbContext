@@ -20,6 +20,10 @@ namespace FreeSql.Tests {
 		[Fact]
 		public void Include_ManyToMany() {
 
+			g.sqlite.CodeFirst.SyncStructure<Song_tag>();
+			g.sqlite.CodeFirst.SyncStructure<Tag>();
+			g.sqlite.CodeFirst.SyncStructure<Song>();
+
 			using (var ctx = g.sqlite.CreateDbContext()) {
 
 				var songs = ctx.Set<Song>().Select

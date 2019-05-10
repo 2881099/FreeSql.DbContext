@@ -4,6 +4,10 @@
 
 ## 更新日志
 
+### v0.5.12
+
+- 增加 工作单元开关，可在任意 Insert/Update/Delete 之前调用，以关闭工作单元使其失效；[PR #1](https://github.com/2881099/FreeSql.DbContext/pull/1)
+
 ### v0.5.9
 
 - 增加 linq to sql 的查询语法，以及单元测试，[wiki](https://github.com/2881099/FreeSql/wiki/LinqToSql)；

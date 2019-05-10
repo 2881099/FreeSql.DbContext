@@ -203,7 +203,9 @@ namespace FreeSql {
 			return 0;
 		}
 		async public Task UpdateAsync(TEntity data) {
-			if (ExistsInStates(data) == false) {
+			var exists = ExistsInStates(data);
+			if (exists == null) throw new Exception($"不可更新，未设置主键的值：{_fsql.GetEntityString(_entityType, data)}");
+			if (exists == false) {
 				var olddata = await OrmSelect(data).FirstAsync();
 				if (olddata == null) throw new Exception($"不可更新，数据库不存在该记录：{_fsql.GetEntityString(_entityType, data)}");
 			}
@@ -241,13 +243,13 @@ namespace FreeSql {
 			if (data == null) throw new ArgumentNullException(nameof(data));
 			if (_table.Primarys.Any() == false) throw new Exception($"不可添加，实体没有主键：{_fsql.GetEntityString(_entityType, data)}");
 
-			var flagExists = true;
-			if (ExistsInStates(data) == false) {
+			var flagExists = ExistsInStates(data);
+			if (flagExists == false) {
 				var olddata = await OrmSelect(data).FirstAsync();
 				if (olddata == null) flagExists = false;
 			}
 
-			if (flagExists && CanUpdate(data, false)) {
+			if (flagExists == true && CanUpdate(data, false)) {
 				await DbContextExecCommandAsync();
 				var affrows = _ctx._affrows;
 				await UpdateRangePrivAsync(new[] { data }, false);

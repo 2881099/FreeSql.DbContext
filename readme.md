@@ -4,6 +4,11 @@
 
 ## 更新日志
 
+### v0.5.13(预告)
+
+- 修复 AddOrUpdate/InsertOrUpdate 当主键无值时，仍然查询了一次数据库；
+- 增加 查询数据时 TrackToList 对导航集合的状态跟踪；
+
 ### v0.5.12
 
 - 增加 工作单元开关，可在任意 Insert/Update/Delete 之前调用，以关闭工作单元使其失效；[PR #1](https://github.com/2881099/FreeSql.DbContext/pull/1)

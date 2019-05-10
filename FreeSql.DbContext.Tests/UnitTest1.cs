@@ -18,6 +18,60 @@ namespace FreeSql.Tests {
 		public enum testenumWhereType { Menu, Class, Blaaa }
 
 		[Fact]
+		public void Include_ManyToMany() {
+
+			using (var ctx = g.sqlite.CreateDbContext()) {
+
+				var songs = ctx.Set<Song>().Select
+					.IncludeMany(a => a.Tags)
+					.ToList();
+
+				var tag1 = new Tag {
+					Ddd = DateTime.Now.Second,
+					Name = "test_manytoMany_01_中国"
+				};
+				var tag2 = new Tag {
+					Ddd = DateTime.Now.Second,
+					Name = "test_manytoMany_02_美国"
+				};
+				var tag3 = new Tag {
+					Ddd = DateTime.Now.Second,
+					Name = "test_manytoMany_03_日本"
+				};
+				ctx.AddRange(new[] { tag1, tag2, tag3 });
+
+				var song1 = new Song {
+					Create_time = DateTime.Now,
+					Title = "test_manytoMany_01_我是中国人.mp3",
+					Url = "http://ww.baidu.com/"
+				};
+				var song2 = new Song {
+					Create_time = DateTime.Now,
+					Title = "test_manytoMany_02_爱你一万年.mp3",
+					Url = "http://ww.163.com/"
+				};
+				var song3 = new Song {
+					Create_time = DateTime.Now,
+					Title = "test_manytoMany_03_千年等一回.mp3",
+					Url = "http://ww.sina.com/"
+				};
+				ctx.AddRange(new[] { song1, song2, song3 });
+
+				ctx.AddRange(
+					new[] {
+						new Song_tag { Song_id = song1.Id, Tag_id = tag1.Id },
+						new Song_tag { Song_id = song2.Id, Tag_id = tag1.Id },
+						new Song_tag { Song_id = song3.Id, Tag_id = tag1.Id },
+						new Song_tag { Song_id = song1.Id, Tag_id = tag2.Id },
+						new Song_tag { Song_id = song3.Id, Tag_id = tag2.Id },
+						new Song_tag { Song_id = song3.Id, Tag_id = tag3.Id },
+					}
+				);
+				ctx.SaveChanges();
+			}
+		}
+
+		[Fact]
 		public void Add() {
 
 			g.sqlite.SetDbContextOptions(opt => {
@@ -32,6 +86,8 @@ namespace FreeSql.Tests {
 			//支持 1对多 联级保存
 
 			using (var ctx = new FreeContext(g.sqlite)) {
+
+				var tags = ctx.Set<Tag>().Select.IncludeMany(a => a.Tags).ToList();
 
 				var tag = new Tag {
 					Name = "testaddsublist",

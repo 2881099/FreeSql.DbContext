@@ -59,33 +59,23 @@ namespace FreeSql {
 			_ctx._affrows += affrows;
 		}
 
-		internal static ConcurrentDictionary<Type, MethodInfo> dicMethodTractToListInternal = new ConcurrentDictionary<Type, MethodInfo>();
-		internal void TractToListInternal(IEnumerable<TEntity> list) {
-			foreach (var item in list) {
-				var key = _fsql.GetEntityKeyString(_entityType, item);
-				_states.AddOrUpdate(key, k => CreateEntityState(item), (k, ov) => {
-					_fsql.MapEntityValue(_entityType, item, ov.Value);
-					ov.Time = DateTime.Now;
-					return ov;
-				});
-			}
-		}
-		//internal void TrackToList(object list) {
-		//	if (list == null) return;
-		//	var listType = list.GetType();
-		//	if (listType.IsGenericType == false) return;
-		//	var listGenericType = listType.GenericTypeArguments[0];
-		//	if (typeof(IEnumerable<>).MakeGenericType(listGenericType).IsAssignableFrom(listType)) return;
-
-		//	var dbset = _ctx.Set(listGenericType);
-		//	var dbsetStates = dicMethodTractToListInternal.GetOrAdd(_entityType, 
-		//		et => typeof(DbSet<>).MakeGenericType(et).GetMethod("TractToListInternal"))
-		//		.Invoke(dbset, new object[] { list });
-		//}
 		internal void TrackToList(object list) {
 			if (list == null) return;
 			var ls = list as IList<TEntity>;
-			if (ls == null) return;
+			if (ls == null) {
+				var ie = list as IEnumerable;
+				if (ie == null) return;
+				foreach (var item in ie) {
+					if (item == null) return;
+					var itemType = item.GetType();
+					if (itemType == typeof(object)) return;
+					if (itemType.FullName.StartsWith("Submission#0+FreeSqlLazy")) itemType = itemType.BaseType;
+					var dbset = _ctx.Set(itemType);
+					dbset.GetType().GetMethod("TrackToList", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(dbset, new object[] { list });
+					return;
+				}
+				return;
+			}
 
 			foreach (var item in ls) {
 				var key = _fsql.GetEntityKeyString(_entityType, item);
@@ -164,10 +154,10 @@ namespace FreeSql {
 			_fsql.MapEntityValue(_entityType, data, state.Value);
 			return state;
 		}
-		bool ExistsInStates(TEntity data) {
-			if (data == null) return false;
+		bool? ExistsInStates(TEntity data) {
+			if (data == null) throw new ArgumentNullException(nameof(data));
 			var key = _fsql.GetEntityKeyString(_entityType, data);
-			if (string.IsNullOrEmpty(key)) return false;
+			if (string.IsNullOrEmpty(key)) return null;
 			return _states.ContainsKey(key);
 		}
 

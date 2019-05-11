@@ -4,7 +4,7 @@
 
 ## 更新日志
 
-### v0.5.13
+### v0.5.14
 
 - 修复 AddOrUpdate/InsertOrUpdate 当主键无值时，仍然查询了一次数据库；
 - 增加 查询数据时 TrackToList 对导航集合的状态跟踪；

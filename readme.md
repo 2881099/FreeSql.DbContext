@@ -4,10 +4,11 @@
 
 ## 更新日志
 
-### v0.5.16
+### v0.5.17
 
 - 修复 AddOrUpdate/InsertOrUpdate 当主键无值时，仍然查询了一次数据库；
 - 增加 查询数据时 TrackToList 对导航集合的状态跟踪；
+- 完善 AddOrUpdateNavigateList 联级保存，忽略标记 IsIgnore 的集合属性；
 
 ### v0.5.12
 

@@ -114,6 +114,7 @@ namespace FreeSql {
 		void AddOrUpdateNavigateList(TEntity item) {
 			Type itemType = null;
 			foreach (var prop in _table.Properties) {
+				if (_table.ColumnsByCsIgnore.ContainsKey(prop.Key)) continue;
 				if (_table.ColumnsByCs.ContainsKey(prop.Key)) continue;
 				var tref = _table.GetTableRef(prop.Key, true);
 				if (tref == null) continue;

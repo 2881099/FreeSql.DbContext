@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Linq;
+using System.Reflection;
 
 namespace FreeSql {
 	partial class DbSet<TEntity> {
@@ -110,12 +111,29 @@ namespace FreeSql {
 						AddOrUpdateNavigateList(item);
 			}
 		}
-		static ConcurrentDictionary<Type, ConcurrentDictionary<string, System.Reflection.FieldInfo>> _dicLazyIsSetField = new ConcurrentDictionary<Type, ConcurrentDictionary<string, System.Reflection.FieldInfo>>();
+		static ConcurrentDictionary<Type, ConcurrentDictionary<string, FieldInfo>> _dicLazyIsSetField = new ConcurrentDictionary<Type, ConcurrentDictionary<string, FieldInfo>>();
 		void AddOrUpdateNavigateList(TEntity item) {
 			Type itemType = null;
 			foreach (var prop in _table.Properties) {
 				if (_table.ColumnsByCsIgnore.ContainsKey(prop.Key)) continue;
 				if (_table.ColumnsByCs.ContainsKey(prop.Key)) continue;
+
+				object propVal = null;
+
+				if (itemType == null) itemType = item.GetType();
+				if (_table.TypeLazy != null && itemType == _table.TypeLazy) {
+					var lazyField = _dicLazyIsSetField.GetOrAdd(_table.TypeLazy, tl => new ConcurrentDictionary<string, FieldInfo>()).GetOrAdd(prop.Key, propName =>
+						_table.TypeLazy.GetField($"__lazy__{propName}", BindingFlags.GetField | BindingFlags.NonPublic | BindingFlags.Instance));
+					if (lazyField != null) {
+						var lazyFieldValue = (bool)lazyField.GetValue(item);
+						if (lazyFieldValue == false) continue;
+					}
+					propVal = prop.Value.GetValue(item);
+				} else {
+					propVal = prop.Value.GetValue(item);
+					if (propVal == null) continue;
+				}
+
 				var tref = _table.GetTableRef(prop.Key, true);
 				if (tref == null) continue;
 
@@ -125,20 +143,10 @@ namespace FreeSql {
 					case Internal.Model.TableRefType.ManyToMany:
 						continue;
 					case Internal.Model.TableRefType.OneToMany:
-						if (itemType == null) itemType = item.GetType();
-						if (_table.TypeLazy != null && itemType == _table.TypeLazy) {
-							var lazyField = _dicLazyIsSetField.GetOrAdd(_table.TypeLazy, tl => new ConcurrentDictionary<string, System.Reflection.FieldInfo>()).GetOrAdd(prop.Key, propName => 
-								_table.TypeLazy.GetField($"__lazy__{propName}", System.Reflection.BindingFlags.GetField | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance));
-							if (lazyField != null) {
-								var lazyFieldValue = (bool)lazyField.GetValue(item);
-								if (lazyFieldValue == false) continue;
-							}
-						}
-						var propVal = prop.Value.GetValue(item);
 						var propValEach = propVal as IEnumerable;
 						if (propValEach == null) continue;
 						object dbset = null;
-						System.Reflection.MethodInfo dbsetAddOrUpdate = null;
+						MethodInfo dbsetAddOrUpdate = null;
 						foreach (var propValItem in propValEach) {
 							if (dbset == null) {
 								dbset = _ctx.Set(tref.RefEntityType);

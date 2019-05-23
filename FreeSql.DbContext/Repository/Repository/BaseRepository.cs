@@ -119,6 +119,7 @@ namespace FreeSql {
 
 		public void Attach(TEntity data) => _db.Attach(data);
 		public void Attach(IEnumerable<TEntity> data) => _db.AttachRange(data);
+		public void FlushState() => _db.DbSet.FlushState();
 
 		public TEntity InsertOrUpdate(TEntity entity) {
 			_db.DbSet.AddOrUpdate(entity);

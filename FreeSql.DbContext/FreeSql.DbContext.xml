@@ -57,6 +57,11 @@
             </summary>
             <param name="data"></param>
         </member>
+        <member name="M:FreeSql.DbSet`1.FlushState">
+            <summary>
+            清空状态数据
+            </summary>
+        </member>
         <member name="M:FreeSql.DbSet`1.Add(`0)">
             <summary>
             添加
@@ -132,6 +137,11 @@
             禁用所有过滤器，若使用 using 则使用完后，恢复为原有状态
             </summary>
             <returns></returns>
+        </member>
+        <member name="M:FreeSql.IBasicRepository`1.FlushState">
+            <summary>
+            清空状态数据
+            </summary>
         </member>
         <member name="M:FreeSql.IBasicRepository`1.Attach(`0)">
             <summary>

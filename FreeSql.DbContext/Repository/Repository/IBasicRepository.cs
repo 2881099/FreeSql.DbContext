@@ -10,6 +10,10 @@ namespace FreeSql {
 		Task<List<TEntity>> InsertAsync(IEnumerable<TEntity> entitys);
 
 		/// <summary>
+		/// 清空状态数据
+		/// </summary>
+		void FlushState();
+		/// <summary>
 		/// 附加实体，可用于不查询就更新或删除
 		/// </summary>
 		/// <param name="entity"></param>

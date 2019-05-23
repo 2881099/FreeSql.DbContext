@@ -145,6 +145,12 @@ namespace FreeSql {
 				});
 			}
 		}
+		/// <summary>
+		/// 清空状态数据
+		/// </summary>
+		public void FlushState() {
+			_states.Clear();
+		}
 
 		#region Utils
 		EntityState CreateEntityState(TEntity data) {

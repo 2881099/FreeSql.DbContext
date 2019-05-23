@@ -4,6 +4,10 @@
 
 ## 更新日志
 
+### v0.6.1
+
+- 增加 DbSet/Repository FlushState 手工清除状态管理数据；
+
 ### v0.5.21
 
 - 修复 AddOrUpdate/InsertOrUpdate 当主键无值时，仍然查询了一次数据库；

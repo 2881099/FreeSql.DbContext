@@ -4,7 +4,7 @@
 
 ## 更新日志
 
-### v0.6.1
+### v0.5.23
 
 - 增加 DbSet/Repository FlushState 手工清除状态管理数据；
 

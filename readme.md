@@ -4,6 +4,20 @@
 
 ## 更新日志
 
+### v0.6.1
+
+- 拆分 FreeSql 小包引用，各数据库单独包、延时加载包；
+- FreeSql.Extensions.LazyLoading
+- FreeSql.Provider.MySql
+- FreeSql.Provider.PostgreSQL
+- FreeSql.Provider.SqlServer
+- FreeSql.Provider.Sqlite
+- FreeSql.Provider.Oracle
+- 移除 IFreeSql.Cache，以及 ISelect.Caching 方法；
+- 移除 IFreeSql.Log，包括内部原有的日志输出，改为 Trace.WriteLine；
+- IAdo.Query\<dynamic\> 读取返回变为 List\<Dictionary\<string, object\>\>；
+- 定义 IFreeSql 和以前一样，移除了 UseCache、UseLogger 方法；
+
 ### v0.5.23
 
 - 增加 DbSet/Repository FlushState 手工清除状态管理数据；

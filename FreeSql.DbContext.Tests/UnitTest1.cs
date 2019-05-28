@@ -5,8 +5,6 @@ using System.Collections.Generic;
 using Xunit;
 using System.Linq;
 using Newtonsoft.Json.Linq;
-using NpgsqlTypes;
-using Npgsql.LegacyPostgis;
 
 namespace FreeSql.Tests {
 	public class UnitTest1 {

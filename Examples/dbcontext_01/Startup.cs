@@ -51,7 +51,6 @@ namespace dbcontext_01
 			Fsql2 = new FreeSql.FreeSqlBuilder()
 				.UseConnectionString(FreeSql.DataType.Sqlite, @"Data Source=|DataDirectory|\document222.db;Pooling=true;Max Pool Size=10")
 				//.UseConnectionString(FreeSql.DataType.SqlServer, "Data Source=.;Integrated Security=True;Initial Catalog=freesqlTest;Pooling=true;Max Pool Size=10")
-				.UseLogger(loggerFactory.CreateLogger<IFreeSql>())
 				.UseAutoSyncStructure(true)
 				.UseLazyLoading(true)
 

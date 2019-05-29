@@ -22,105 +22,6 @@
 - IAdo.Query\<dynamic\> 读取返回变为 List\<Dictionary\<string, object\>\>；
 - 定义 IFreeSql 和以前一样，移除了 UseCache、UseLogger 方法；
 
-### v0.5.23
-
-- 增加 DbSet/Repository FlushState 手工清除状态管理数据；
-
-### v0.5.21
-
-- 修复 AddOrUpdate/InsertOrUpdate 当主键无值时，仍然查询了一次数据库；
-- 增加 查询数据时 TrackToList 对导航集合的状态跟踪；
-- 完善 AddOrUpdateNavigateList 联级保存，忽略标记 IsIgnore 的集合属性；
-- 完成 IFreeSql.Include、IncludeMany 功能；
-
-### v0.5.12
-
-- 增加 工作单元开关，可在任意 Insert/Update/Delete 之前调用，以关闭工作单元使其失效；[PR #1](https://github.com/2881099/FreeSql.DbContext/pull/1)
-
-### v0.5.9
-
-- 增加 linq to sql 的查询语法，以及单元测试，[wiki](https://github.com/2881099/FreeSql/wiki/LinqToSql)；
-- 修复 EnableAddOrUpdateNavigateList 设置对异步方法无效的 bug；
-
-### v0.5.8
-
-- 增加 IFreeSql.SetDbContextOptions 设置 DbContext 的功能：开启或禁用连级一对多导航集合属性保存的功能，EnableAddOrUpdateNavigateList（默认开启）；
-- 增加 IUnitOfWork.IsolationLevel 设置事务级别；
-
-### v0.5.7
-
-- 修复 UnitOfWork.GetRepository() 事务 bug，原因：仓储的每步操作都提交了事务；
-
-### v0.5.5
-
-- 修复 MapEntityValue 对 IsIgnore 未处理的 bug；
-
-### v0.5.4
-
-- 修复 Repository 追加导航集合的保存 bug；
-- 公开 IRepository.Orm 对象；
-
-### v0.5.3
-
-- 修复 实体跟踪的 bug，当查询到的实体自增值为 0 时重现；
-- 优化 状态管理字典为 ConcurrentDictionary；
-
-### v0.5.2
-
-- 优化 SqlServer UnitOfWork 使用bug，在 FreeSql 内部解决的；
-- 补充 测试与支持联合主键的自增；
-
-### v0.5.1
-
-- 补充 开放 DbContext.UnitOfWork 对象，方便扩展并保持在同一个事务执行；
-- 补充 增加 DbSet\<object\>、Repository\<object\> 使用方法，配合 AsType(实体类型)，实现弱类型操作；
-- 修复 DbContext.AddOrUpdate 传入 null 时，任然会查询一次数据库的 bug；
-- 优化 DbContext.AddOrUpdate 未添加实体主键的错误提醒；
-- 修复 DbContext.Set\<object\> 缓存的 bug，使用多种弱类型时发生；
-- 修复 IsIgnore 过滤字段后，查询的错误；
-- 修复 全局过滤器功能迁移的遗留 bug；
-
-### v0.4.14
-
-- 优化 Add 时未设置主键的错误提醒；
-
-### v0.4.13
-
-- 补充 Repository 增加 Attach 方法；
-- 优化 Update/AddOrUpdate 实体的时候，若状态管理不存在，尝试查询一次数据库，以便跟踪对象；
-
-### v0.4.12
-
-- 修复 非自增情况下，Add 后再 Update 该实体时，错误（需要先 Attach 或查询）的 bug；
-
-### v0.4.10
-
-- 补充 开放 DbContext.Orm 对象；
-- 修复 OnConfiguring 未配置时注入获取失败的 bug；
-
-### v0.4.6
-
-- 修复 DbSet AddRange/UpdateRange/RemoveRange 参数为空列表时报错，现在不用判断 data.Any() == true 再执行；
-- 增加 DbContext 对 DbSet 的快速代理方法(Add/Update/Remove/Attach)；
-- 增加 DbContext 通用类，命名为：FreeContext，也可以通过 IFreeSql 扩展方法 CreateDbContext 创建；
-- 增加 ISelect NoTracking 扩展方法，查询数据时不追踪（从而提升查询性能）；
-
-### v0.4.5
-
-- 增加 DbSet Attach 方法附加实体，可用于不查询就更新或删除；
-
-### v0.4.2
-
-- 增加 DbSet UpdateAsync/UpdateRangeAsync 方法，当一个实体被更新两次时，会先执行前面的队列；
-- 增加 GetRepository 获取联合主键的适用仓储类；
-- 增加 DbSet 在 Add/Update 时对导航属性(OneToMany) 的处理（AddOrUpdate）；
-
-### v0.4.1
-- 独立 FreeSql.DbContext 项目；
-- 实现 Repository + DbSet 统一的状态跟踪与工作单元；
-- 增加 DbSet AddOrUpdate 方法；
-- 增加 Repository InsertOrUpdate 方法；
-
 ## DbContext & DbSet
 
 ```csharp
@@ -278,3 +179,104 @@ fsql.GetGuidRepository<User>().Select.FromRepository(logRepository)
 
 * 不能使用 CodeFirst 迁移分表，开发环境时仍然可以迁移 Log 表；
 * 不可在分表分库的实体类型中使用《延时加载》；
+
+# 历史版本
+
+### v0.5.23
+
+- 增加 DbSet/Repository FlushState 手工清除状态管理数据；
+
+### v0.5.21
+
+- 修复 AddOrUpdate/InsertOrUpdate 当主键无值时，仍然查询了一次数据库；
+- 增加 查询数据时 TrackToList 对导航集合的状态跟踪；
+- 完善 AddOrUpdateNavigateList 联级保存，忽略标记 IsIgnore 的集合属性；
+- 完成 IFreeSql.Include、IncludeMany 功能；
+
+### v0.5.12
+
+- 增加 工作单元开关，可在任意 Insert/Update/Delete 之前调用，以关闭工作单元使其失效；[PR #1](https://github.com/2881099/FreeSql.DbContext/pull/1)
+
+### v0.5.9
+
+- 增加 linq to sql 的查询语法，以及单元测试，[wiki](https://github.com/2881099/FreeSql/wiki/LinqToSql)；
+- 修复 EnableAddOrUpdateNavigateList 设置对异步方法无效的 bug；
+
+### v0.5.8
+
+- 增加 IFreeSql.SetDbContextOptions 设置 DbContext 的功能：开启或禁用连级一对多导航集合属性保存的功能，EnableAddOrUpdateNavigateList（默认开启）；
+- 增加 IUnitOfWork.IsolationLevel 设置事务级别；
+
+### v0.5.7
+
+- 修复 UnitOfWork.GetRepository() 事务 bug，原因：仓储的每步操作都提交了事务；
+
+### v0.5.5
+
+- 修复 MapEntityValue 对 IsIgnore 未处理的 bug；
+
+### v0.5.4
+
+- 修复 Repository 追加导航集合的保存 bug；
+- 公开 IRepository.Orm 对象；
+
+### v0.5.3
+
+- 修复 实体跟踪的 bug，当查询到的实体自增值为 0 时重现；
+- 优化 状态管理字典为 ConcurrentDictionary；
+
+### v0.5.2
+
+- 优化 SqlServer UnitOfWork 使用bug，在 FreeSql 内部解决的；
+- 补充 测试与支持联合主键的自增；
+
+### v0.5.1
+
+- 补充 开放 DbContext.UnitOfWork 对象，方便扩展并保持在同一个事务执行；
+- 补充 增加 DbSet\<object\>、Repository\<object\> 使用方法，配合 AsType(实体类型)，实现弱类型操作；
+- 修复 DbContext.AddOrUpdate 传入 null 时，任然会查询一次数据库的 bug；
+- 优化 DbContext.AddOrUpdate 未添加实体主键的错误提醒；
+- 修复 DbContext.Set\<object\> 缓存的 bug，使用多种弱类型时发生；
+- 修复 IsIgnore 过滤字段后，查询的错误；
+- 修复 全局过滤器功能迁移的遗留 bug；
+
+### v0.4.14
+
+- 优化 Add 时未设置主键的错误提醒；
+
+### v0.4.13
+
+- 补充 Repository 增加 Attach 方法；
+- 优化 Update/AddOrUpdate 实体的时候，若状态管理不存在，尝试查询一次数据库，以便跟踪对象；
+
+### v0.4.12
+
+- 修复 非自增情况下，Add 后再 Update 该实体时，错误（需要先 Attach 或查询）的 bug；
+
+### v0.4.10
+
+- 补充 开放 DbContext.Orm 对象；
+- 修复 OnConfiguring 未配置时注入获取失败的 bug；
+
+### v0.4.6
+
+- 修复 DbSet AddRange/UpdateRange/RemoveRange 参数为空列表时报错，现在不用判断 data.Any() == true 再执行；
+- 增加 DbContext 对 DbSet 的快速代理方法(Add/Update/Remove/Attach)；
+- 增加 DbContext 通用类，命名为：FreeContext，也可以通过 IFreeSql 扩展方法 CreateDbContext 创建；
+- 增加 ISelect NoTracking 扩展方法，查询数据时不追踪（从而提升查询性能）；
+
+### v0.4.5
+
+- 增加 DbSet Attach 方法附加实体，可用于不查询就更新或删除；
+
+### v0.4.2
+
+- 增加 DbSet UpdateAsync/UpdateRangeAsync 方法，当一个实体被更新两次时，会先执行前面的队列；
+- 增加 GetRepository 获取联合主键的适用仓储类；
+- 增加 DbSet 在 Add/Update 时对导航属性(OneToMany) 的处理（AddOrUpdate）；
+
+### v0.4.1
+- 独立 FreeSql.DbContext 项目；
+- 实现 Repository + DbSet 统一的状态跟踪与工作单元；
+- 增加 DbSet AddOrUpdate 方法；
+- 增加 Repository InsertOrUpdate 方法；

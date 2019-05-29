@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿#if ns20
+
+using Microsoft.Extensions.DependencyInjection;
 using System;
 
 namespace FreeSql {
@@ -27,3 +29,4 @@ namespace FreeSql {
 		}
 	}
 }
+#endif

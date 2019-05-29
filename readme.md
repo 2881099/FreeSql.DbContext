@@ -4,6 +4,10 @@
 
 ## 更新日志
 
+### v0.6.2
+
+- 适配 .net framework 4.5、netstandard 2.0；
+
 ### v0.6.1
 
 - 拆分 FreeSql 小包引用，各数据库单独包、延时加载包；

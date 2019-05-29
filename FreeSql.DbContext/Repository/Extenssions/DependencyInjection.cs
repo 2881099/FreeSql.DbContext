@@ -1,4 +1,6 @@
-﻿using FreeSql;
+﻿#if ns20
+
+using FreeSql;
 using System;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
@@ -37,3 +39,5 @@ namespace FreeSql {
 		}
 	}
 }
+
+#endif

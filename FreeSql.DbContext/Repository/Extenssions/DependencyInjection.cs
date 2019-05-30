@@ -1,10 +1,6 @@
 ﻿#if ns20
 
-using FreeSql;
 using System;
-using System.Collections.Generic;
-using System.Collections.Concurrent;
-using System.Linq.Expressions;
 using System.Reflection;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;

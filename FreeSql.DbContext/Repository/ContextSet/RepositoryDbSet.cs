@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace FreeSql {
 	internal class RepositoryDbSet<TEntity> : DbSet<TEntity> where TEntity : class {

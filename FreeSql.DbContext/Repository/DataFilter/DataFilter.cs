@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Linq.Expressions;
-using System.Text;
 using System.Linq;
 
 namespace FreeSql {

@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace FreeSql {
-	public abstract class BaseRepository<TEntity> : IRepository<TEntity>
+	public abstract class BaseRepository<TEntity> : IBaseRepository<TEntity>
 		where TEntity : class {
 
 		RepositoryDbContext<TEntity> _dbPriv;
@@ -133,7 +133,7 @@ namespace FreeSql {
 		}
 	}
 
-	public abstract class BaseRepository<TEntity, TKey> : BaseRepository<TEntity>, IRepository<TEntity, TKey>
+	public abstract class BaseRepository<TEntity, TKey> : BaseRepository<TEntity>, IBaseRepository<TEntity, TKey>
 		where TEntity : class {
 
 		public BaseRepository(IFreeSql fsql, Expression<Func<TEntity, bool>> filter, Func<string, string> asTable = null) : base(fsql, filter, asTable) {

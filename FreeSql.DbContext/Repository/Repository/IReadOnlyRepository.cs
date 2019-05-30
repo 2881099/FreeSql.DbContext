@@ -3,7 +3,7 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace FreeSql {
-	public interface IReadOnlyRepository<TEntity> : IRepository
+	public interface IReadOnlyRepository<TEntity> : IBaseRepository
 		where TEntity : class {
 
 		IDataFilter<TEntity> DataFilter { get; }

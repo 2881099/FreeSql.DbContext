@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace FreeSql {
 
-	public interface IRepository : IDisposable {
+	public interface IBaseRepository : IDisposable {
 		Type EntityType { get; }
 		IUnitOfWork UnitOfWork { get; set; }
 		IFreeSql Orm { get; }
@@ -17,14 +17,14 @@ namespace FreeSql {
 		void AsType(Type entityType);
 	}
 
-	public interface IRepository<TEntity> : IReadOnlyRepository<TEntity>, IBasicRepository<TEntity>
+	public interface IBaseRepository<TEntity> : IReadOnlyRepository<TEntity>, IBasicRepository<TEntity>
 		where TEntity : class {
 		int Delete(Expression<Func<TEntity, bool>> predicate);
 
 		Task<int> DeleteAsync(Expression<Func<TEntity, bool>> predicate);
 	}
 
-	public interface IRepository<TEntity, TKey> : IRepository<TEntity>, IReadOnlyRepository<TEntity, TKey>, IBasicRepository<TEntity, TKey>
+	public interface IBaseRepository<TEntity, TKey> : IBaseRepository<TEntity>, IReadOnlyRepository<TEntity, TKey>, IBasicRepository<TEntity, TKey>
 		where TEntity : class {
 	}
 }

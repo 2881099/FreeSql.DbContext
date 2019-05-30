@@ -1,10 +1,6 @@
 ﻿#if ns20
 
-using FreeSql;
 using System;
-using System.Collections.Generic;
-using System.Collections.Concurrent;
-using System.Linq.Expressions;
 using System.Reflection;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,7 +24,7 @@ namespace FreeSql {
 
 			if (assemblies?.Any() == true) {
 				foreach(var asse in assemblies) {
-					foreach (var repos in asse.GetTypes().Where(a => a.IsAbstract == false && typeof(IRepository).IsAssignableFrom(a))) {
+					foreach (var repos in asse.GetTypes().Where(a => a.IsAbstract == false && typeof(IBaseRepository).IsAssignableFrom(a))) {
 
 						services.AddScoped(repos);
 					}

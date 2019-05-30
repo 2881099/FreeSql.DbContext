@@ -24,7 +24,7 @@ namespace FreeSql {
 			if (entityType != typeof(TEntity)) {
 				var filter = _repos.DataFilter as DataFilter<TEntity>;
 				repos = Activator.CreateInstance(typeof(DefaultRepository<,>).MakeGenericType(entityType, typeof(int)), _repos.Orm);
-				(repos as IRepository).UnitOfWork = _repos.UnitOfWork;
+				(repos as IBaseRepository).UnitOfWork = _repos.UnitOfWork;
 				DataFilterUtil.SetRepositoryDataFilter(repos, fl => {
 					foreach (var f in filter._filters)
 						fl.Apply<TEntity>(f.Key, f.Value.Expression);

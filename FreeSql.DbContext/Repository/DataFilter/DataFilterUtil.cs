@@ -26,7 +26,7 @@ namespace FreeSql {
 				scopedDataFilter(globalFilter);
 
 				var type = repos.GetType();
-				Type entityType = (repos as IRepository).EntityType;
+				Type entityType = (repos as IBaseRepository).EntityType;
 				if (entityType == null) throw new Exception("FreeSql.Repository 设置过滤器失败，原因是对象不属于 IRepository");
 
 				var notExists = _dicSetRepositoryDataFilterConvertFilterNotExists.GetOrAdd(type, t => new ConcurrentDictionary<string, bool>());

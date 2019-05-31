@@ -134,7 +134,7 @@ namespace FreeSql.Tests {
                 using (var uow = fsql.CreateUnitOfWork())
                 {
                     //关闭工作单元（不会开始事务）
-                    uow.Disable();
+                    uow.Close();
                     var uowFlowRepos = uow.GetRepository<FlowModel>();
                     uowFlowRepos.Insert(flow);
                     //已关闭工作单元，提不提交都没影响，此处注释来确定工作单元开关是否生效：关闭了，不Commit也应该插入数据
@@ -179,7 +179,7 @@ namespace FreeSql.Tests {
                         var uowFlowRepos = uow.GetRepository<FlowModel>();
                         uowFlowRepos.Insert(flow);
                         //有了任意 Insert/Update/Delete 调用关闭uow的方法将会发生异常
-                        uow.Disable();
+                        uow.Close();
                         uow.Commit();
                     }
 

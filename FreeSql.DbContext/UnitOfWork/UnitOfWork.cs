@@ -32,7 +32,7 @@ namespace FreeSql {
         /// <para></para>
         /// 若已开启事务（已有Insert/Update/Delete操作），调用此方法将发生异常，建议在执行逻辑前调用
         /// </summary>
-        public void Disable()
+        public void Close()
         {
             if (_tran != null)
             {
@@ -40,6 +40,11 @@ namespace FreeSql {
             }
 
             Enable = false;
+        }
+
+        public void Open()
+        {
+            Enable = true;
         }
 
         public IsolationLevel? IsolationLevel { get; set; }

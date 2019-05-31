@@ -57,15 +57,15 @@ namespace FreeSql {
 			
 		}
 
-		protected Dictionary<Type, object> _dicSet = new Dictionary<Type, object>();
+		protected Dictionary<Type, IDbSet> _dicSet = new Dictionary<Type, IDbSet>();
 		public DbSet<TEntity> Set<TEntity>() where TEntity : class => this.Set(typeof(TEntity)) as DbSet<TEntity>;
-		public virtual object Set(Type entityType) {
+		public virtual IDbSet Set(Type entityType) {
 			if (_dicSet.ContainsKey(entityType)) return _dicSet[entityType];
-			var sd = Activator.CreateInstance(typeof(DbContextDbSet<>).MakeGenericType(entityType), this);
+			var sd = Activator.CreateInstance(typeof(DbContextDbSet<>).MakeGenericType(entityType), this) as IDbSet;
 			if (entityType != typeof(object)) _dicSet.Add(entityType, sd);
 			return sd;
 		}
-		protected Dictionary<string, object> AllSets { get; } = new Dictionary<string, object>();
+		protected Dictionary<string, IDbSet> AllSets { get; } = new Dictionary<string, IDbSet>();
 
 		#region DbSet 快速代理
 		/// <summary>
@@ -115,7 +115,7 @@ namespace FreeSql {
 
 		internal class ExecCommandInfo {
 			public ExecCommandInfoType actionType { get; set; }
-			public object dbSet { get; set; }
+			public IDbSet dbSet { get; set; }
 			public Type stateType { get; set; }
 			public object state { get; set; }
 		}
@@ -123,7 +123,7 @@ namespace FreeSql {
 		Queue<ExecCommandInfo> _actions = new Queue<ExecCommandInfo>();
 		internal int _affrows = 0;
 
-		internal void EnqueueAction(ExecCommandInfoType actionType, object dbSet, Type stateType, object state) {
+		internal void EnqueueAction(ExecCommandInfoType actionType, IDbSet dbSet, Type stateType, object state) {
 			_actions.Enqueue(new ExecCommandInfo { actionType = actionType, dbSet = dbSet, stateType = stateType, state = state });
 		}
 
@@ -135,6 +135,12 @@ namespace FreeSql {
 			if (_isdisposed) return;
 			try {
 				_actions.Clear();
+
+				foreach (var set in _dicSet)
+					try {
+						set.Value.Dispose();
+					} catch { }
+
 				_dicSet.Clear();
 				AllSets.Clear();
 				

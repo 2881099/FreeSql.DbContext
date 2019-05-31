@@ -1,41 +1,50 @@
 ﻿using System;
+using System.Collections.Concurrent;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace FreeSql {
-	internal class RepositoryDbContext<TEntity> : DbContext where TEntity : class {
+	internal class RepositoryDbContext : DbContext {
 
-		protected BaseRepository<TEntity> _repos;
-		public RepositoryDbContext(IFreeSql orm, BaseRepository<TEntity> repos) : base() {
+		protected IBaseRepository _repos;
+		public RepositoryDbContext(IFreeSql orm, IBaseRepository repos) : base() {
 			_orm = orm;
 			_repos = repos;
 			_isUseUnitOfWork = false;
 			_uowPriv = _repos.UnitOfWork;
 		}
 
-		public override object Set(Type entityType) {
+
+		static ConcurrentDictionary<Type, FieldInfo> _dicGetRepositoryDbField = new ConcurrentDictionary<Type, FieldInfo>();
+		static FieldInfo GetRepositoryDbField(Type type) => _dicGetRepositoryDbField.GetOrAdd(type, tp => typeof(BaseRepository<,>).MakeGenericType(tp, typeof(int)).GetField("_dbPriv", BindingFlags.Instance | BindingFlags.NonPublic));
+		public override IDbSet Set(Type entityType) {
 			if (_dicSet.ContainsKey(entityType)) return _dicSet[entityType];
 
 			var tb = _orm.CodeFirst.GetTableByEntity(entityType);
 			if (tb == null) return null;
 
 			object repos = _repos;
-			if (entityType != typeof(TEntity)) {
-				var filter = _repos.DataFilter as DataFilter<TEntity>;
+			if (entityType != _repos.EntityType) {
 				repos = Activator.CreateInstance(typeof(DefaultRepository<,>).MakeGenericType(entityType, typeof(int)), _repos.Orm);
 				(repos as IBaseRepository).UnitOfWork = _repos.UnitOfWork;
-				DataFilterUtil.SetRepositoryDataFilter(repos, fl => {
-					foreach (var f in filter._filters)
-						fl.Apply<TEntity>(f.Key, f.Value.Expression);
-				});
+				GetRepositoryDbField(entityType).SetValue(repos, this);
+
+				typeof(RepositoryDbContext).GetMethod("SetRepositoryDataFilter").MakeGenericMethod(_repos.EntityType)
+					.Invoke(null, new object[] { repos, _repos });
 			}
 
-			var sd = Activator.CreateInstance(typeof(RepositoryDbSet<>).MakeGenericType(entityType), repos);
+			var sd = Activator.CreateInstance(typeof(RepositoryDbSet<>).MakeGenericType(entityType), repos) as IDbSet;
 			if (entityType != typeof(object)) _dicSet.Add(entityType, sd);
 			return sd;
 		}
 
-		RepositoryDbSet<TEntity> _dbSet;
-		public RepositoryDbSet<TEntity> DbSet => _dbSet ?? (_dbSet = Set<TEntity>() as RepositoryDbSet<TEntity>);
+		public static void SetRepositoryDataFilter<TEntity>(object repos, BaseRepository<TEntity> baseRepo) where TEntity : class {
+			var filter = baseRepo.DataFilter as DataFilter<TEntity>;
+			DataFilterUtil.SetRepositoryDataFilter(repos, fl => {
+				foreach (var f in filter._filters)
+					fl.Apply<TEntity>(f.Key, f.Value.Expression);
+			});
+		}
 
 		public override int SaveChanges() {
 			ExecCommand();

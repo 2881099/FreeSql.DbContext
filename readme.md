@@ -4,6 +4,10 @@
 
 ## 更新日志
 
+### v0.6.4
+
+- 修复 Repository 联级保存的 bug；
+
 ### v0.6.2
 
 - 适配 .net framework 4.5、netstandard 2.0；

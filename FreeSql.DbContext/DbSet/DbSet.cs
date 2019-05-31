@@ -19,7 +19,10 @@ namespace FreeSql {
 		}
 	}
 
-	public abstract partial class DbSet<TEntity> : IDisposable where TEntity : class {
+	public interface IDbSet : IDisposable {
+		Type EntityType { get; }
+	}
+	public abstract partial class DbSet<TEntity> : IDbSet where TEntity : class {
 
 		internal DbContext _ctx;
 		internal IUnitOfWork _uow;
@@ -69,7 +72,7 @@ namespace FreeSql {
 					if (item == null) return;
 					var itemType = item.GetType();
 					if (itemType == typeof(object)) return;
-					if (itemType.FullName.StartsWith("Submission#0+FreeSqlLazy")) itemType = itemType.BaseType;
+					if (itemType.FullName.StartsWith("Submission#")) itemType = itemType.BaseType;
 					var dbset = _ctx.Set(itemType);
 					dbset?.GetType().GetMethod("TrackToList", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(dbset, new object[] { list });
 					return;
@@ -78,7 +81,7 @@ namespace FreeSql {
 			}
 
 			foreach (var item in ls) {
-				var key = _fsql.GetEntityKeyString(_entityType, item);
+				var key = _fsql.GetEntityKeyString(_entityType, item, false);
 				if (key == null) continue;
 				_states.AddOrUpdate(key, k => CreateEntityState(item), (k, ov) => {
 					_fsql.MapEntityValue(_entityType, item, ov.Value);
@@ -99,7 +102,7 @@ namespace FreeSql {
 		ColumnInfo[] _tableIdentitysPriv;
 		protected ColumnInfo[] _tableIdentitys => _tableIdentitysPriv ?? (_tableIdentitysPriv = _table.Primarys.Where(a => a.Attribute.IsIdentity).ToArray());
 		protected Type _entityType = typeof(TEntity);
-		internal Type _entityTypeInternal => _entityType;
+		public Type EntityType => _entityType;
 
 		/// <summary>
 		/// 动态Type，在使用 DbSet&lt;object&gt; 后使用本方法，指定实体类型
@@ -135,7 +138,7 @@ namespace FreeSql {
 			if (data == null || data.Any() == false) return;
 			if (_table.Primarys.Any() == false) throw new Exception($"不可附加，实体没有主键：{_fsql.GetEntityString(_entityType, data.First())}");
 			foreach (var item in data) {
-				var key = _fsql.GetEntityKeyString(_entityType, item);
+				var key = _fsql.GetEntityKeyString(_entityType, item, false);
 				if (string.IsNullOrEmpty(key)) throw new Exception($"不可附加，未设置主键的值：{_fsql.GetEntityString(_entityType, item)}");
 
 				_states.AddOrUpdate(key, k => CreateEntityState(item), (k, ov) => {
@@ -155,14 +158,14 @@ namespace FreeSql {
 		#region Utils
 		EntityState CreateEntityState(TEntity data) {
 			if (data == null) throw new ArgumentNullException(nameof(data));
-			var key = _fsql.GetEntityKeyString(_entityType, data);
+			var key = _fsql.GetEntityKeyString(_entityType, data, false);
 			var state = new EntityState((TEntity)Activator.CreateInstance(_entityType), key);
 			_fsql.MapEntityValue(_entityType, data, state.Value);
 			return state;
 		}
 		bool? ExistsInStates(TEntity data) {
 			if (data == null) throw new ArgumentNullException(nameof(data));
-			var key = _fsql.GetEntityKeyString(_entityType, data);
+			var key = _fsql.GetEntityKeyString(_entityType, data, false);
 			if (string.IsNullOrEmpty(key)) return null;
 			return _states.ContainsKey(key);
 		}
@@ -185,7 +188,7 @@ namespace FreeSql {
 				if (isThrow) throw new Exception($"不可添加，实体没有主键：{_fsql.GetEntityString(_entityType, data)}");
 				return false;
 			}
-			var key = _fsql.GetEntityKeyString(_entityType, data);
+			var key = _fsql.GetEntityKeyString(_entityType, data, true);
 			if (string.IsNullOrEmpty(key)) {
 				switch (_fsql.Ado.DataType) {
 					case DataType.SqlServer:
@@ -232,7 +235,7 @@ namespace FreeSql {
 				if (isThrow) throw new Exception($"不可更新，实体没有主键：{_fsql.GetEntityString(_entityType, data)}");
 				return false;
 			}
-			var key = _fsql.GetEntityKeyString(_entityType, data);
+			var key = _fsql.GetEntityKeyString(_entityType, data, false);
 			if (string.IsNullOrEmpty(key)) {
 				if (isThrow) throw new Exception($"不可更新，未设置主键的值：{_fsql.GetEntityString(_entityType, data)}");
 				return false;
@@ -262,7 +265,7 @@ namespace FreeSql {
 				if (isThrow) throw new Exception($"不可删除，实体没有主键：{_fsql.GetEntityString(_entityType, data)}");
 				return false;
 			}
-			var key = _fsql.GetEntityKeyString(_entityType, data);
+			var key = _fsql.GetEntityKeyString(_entityType, data, false);
 			if (string.IsNullOrEmpty(key)) {
 				if (isThrow) throw new Exception($"不可删除，未设置主键的值：{_fsql.GetEntityString(_entityType, data)}");
 				return false;

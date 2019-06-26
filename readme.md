@@ -1,3 +1,6 @@
+
+# 源码于【2019年06月26日】移至 FreeSql 仓储维护。。。
+
 这是 [FreeSql](https://github.com/2881099/FreeSql) 衍生出来的扩展包，包含 DbContext & DbSet、Repository & UnitOfWork 实现面向对象的特性（QQ群：4336577）。
 
 > dotnet add package FreeSql.DbContext
